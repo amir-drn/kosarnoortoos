@@ -1,0 +1,20 @@
+﻿@model Ghaforv3.Models.PagedVm<Ghaforv3.Models.OrderRow>
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "سفارش‌ها"; }
+
+<nav class="a-tabs">
+    <a class="@(Model.Status == null ? "on" : "")" href="@Url.Action("Index", "AdminOrders")">همه</a>
+    @for (byte s = 0; s <= 4; s++)
+    {
+        <a class="@(Model.Status == s ? "on" : "")" href="@Url.Action("Index", "AdminOrders", new { status = (int)s })">@Ghaforv3.Models.AdminLabels.Order(s)</a>
+    }
+</nav>
+
+@if (Model.Items.Count == 0) { <p class="muted">سفارشی پیدا نشد.</p> }
+@foreach (var o in Model.Items)
+{
+    <a class="a-row" href="@Url.Action("Details", "AdminOrders", new { id = o.Id })">
+        <span class="grow"><b>#@(o.Id)</b> · @(o.Customer)<br /><small class="muted">@(o.CreatedAt.ToString("yyyy/MM/dd HH:mm")) · @(o.Total.ToString("N0")) تومان</small></span>
+        <span class="a-badge">@Ghaforv3.Models.AdminLabels.Order(o.Status)</span>
+    </a>
+}
+@Html.Partial("_AdminPager", Model)

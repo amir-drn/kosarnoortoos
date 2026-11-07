@@ -1,0 +1,54 @@
+﻿@model Ghaforv3.Models.Order
+@{ ViewBag.Title = "سفارش #" + Fa.Num(Model.Id); ViewBag.NoIndex = true;
+   bool pending = Model.Status == 0;
+   var deadline = Model.CreatedAt.AddMinutes(Ghaforv3.Helpers.Site.ReserveMinutes); }
+
+<div class="page-head"><h1>سفارش #@Fa.Num(Model.Id)</h1><span class="st st@(Model.Status)">@Ghaforv3.Models.AdminLabels.Order(Model.Status)</span></div>
+@if (TempData["ok"] != null) { <div class="flash ok">@TempData["ok"]</div> }
+@if (TempData["err"] != null) { <div class="flash err">@TempData["err"]</div> }
+
+<div class="cart-wrap checkout">
+    <div class="co-main">
+        <section class="co-box">
+            <h2>اقلام</h2>
+            @foreach (var i in Model.OrderItems)
+            {
+                <div class="co-line"><span>@(i.Title) × @Fa.Num(i.Quantity)</span><b>@Fa.Money(i.UnitPrice * i.Quantity)</b></div>
+            }
+        </section>
+        <section class="co-box">
+            <h2>تحویل</h2>
+            <p><b>@(Model.Address.Receiver)</b> · @Fa.Digits(Model.Address.Phone)</p>
+            <p class="muted">@(Model.Address.Province)، @(Model.Address.City)، @(Model.Address.Details)</p>
+            @if (!string.IsNullOrEmpty(Model.Address.PostalCode)) { <p class="muted">کد پستی: @Fa.Digits(Model.Address.PostalCode)</p> }
+        </section>
+        @if (Model.Payments.Any(p => p.IsSuccess))
+        {
+            <section class="co-box"><h2>پرداخت</h2>
+                @foreach (var p in Model.Payments.Where(p => p.IsSuccess))
+                {
+                    <p>پرداخت موفق · کد پیگیری <b>@Fa.Digits(p.RefNumber)</b> · @Fa.Stamp(p.CreatedAt)</p>
+                }
+            </section>
+        }
+    </div>
+    <section class="summary">
+        <div class="sum-row"><span>ثبت سفارش</span><b>@Fa.Stamp(Model.CreatedAt)</b></div>
+        <div class="sum-row total"><span>مبلغ کل</span><b>@Fa.Money(Model.TotalAmount) تومان</b></div>
+        @if (pending)
+        {
+            using (Html.BeginForm("Pay", "Orders", new { id = Model.Id }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <button class="add-btn" type="submit">پرداخت آنلاین ‹</button>
+            }
+            <small class="muted">مهلت پرداخت تا @Fa.Digits(deadline.ToString("HH:mm")) است؛ بعد از آن سفارش لغو می‌شود.</small>
+            using (Html.BeginForm("Cancel", "Orders", new { id = Model.Id }, FormMethod.Post, new { data_confirm = "این سفارش لغو شود؟" }))
+            {
+                @Html.AntiForgeryToken()
+                <button class="add-btn ghost" type="submit">لغو سفارش</button>
+            }
+        }
+    </section>
+</div>
+<p class="center"><a class="muted" href="@Url.Action("Index","Orders")">‹ همهٔ سفارش‌ها</a></p>

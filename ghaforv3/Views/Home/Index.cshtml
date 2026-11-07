@@ -1,0 +1,130 @@
+﻿@model Ghaforv3.Models.HomeViewModel
+@{ ViewBag.Title = "صفحهٔ اصلی"; }
+
+<nav class="chips m-only">
+    <a class="chip active" href="@Url.Action("Index","Products")">همه دسته‌ها</a>
+    @foreach (var c in Model.Categories)
+    {<a class="chip" href="@Url.Action("Index","Products",new{category=c.Slug})">@c.Title</a>}
+</nav>
+
+@if (Model.Banner != null)
+{
+    // آدرس‌هایی که از دیتابیس می‌آیند قبل از استفاده پاک‌سازی می‌شوند (جلوگیری از javascript: و تزریق CSS)
+    var bg = "";
+    if (!string.IsNullOrEmpty(Model.Banner.ImageUrl))
+    {
+        var img = Url.Content(Model.Banner.ImageUrl).Replace("'", "%27").Replace("\"", "%22").Replace("(", "%28").Replace(")", "%29").Replace("\\", "%5C").Replace("<", "%3C").Replace(";", "%3B");
+        bg = "background-image:linear-gradient(270deg,rgba(20,33,61,.85),rgba(20,33,61,.3)),url('" + img + "')";
+    }
+    var href = "#";
+    var link = (Model.Banner.LinkUrl ?? "").Trim();
+    if (link.StartsWith("~/")) { href = Url.Content(link); }
+    else if (link.Length > 0 && Url.IsLocalUrl(link)) { href = link; }
+    else if (link.StartsWith("https://") || link.StartsWith("http://")) { href = link; }
+
+    <section class="hero@(string.IsNullOrEmpty(Model.Banner.ImageUrl) ? "" : " has-img")" data-hero>
+        <div class="hero-bg" style="@bg"></div>
+        <div class="hero-glow"></div>
+        <svg class="hero-lamp" viewBox="0 0 200 380" aria-hidden="true">
+            <defs>
+                <linearGradient id="lampCone" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#ffd36b" stop-opacity=".5" />
+                    <stop offset="1" stop-color="#ffd36b" stop-opacity="0" />
+                </linearGradient>
+                <radialGradient id="lampBulb">
+                    <stop offset="0" stop-color="#fffbe8" />
+                    <stop offset="1" stop-color="#f59e0b" />
+                </radialGradient>
+            </defs>
+            <path d="M100 0V152" stroke="#9fb0cf" stroke-width="2" />
+            <polygon class="lamp-cone" points="64,264 136,264 236,380 -36,380" fill="url(#lampCone)" />
+            <path d="M44 264C44 198 72 158 100 158s56 40 56 106z" fill="#e8eefb" />
+            <path d="M58 258C60 206 80 172 100 168" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="3" stroke-linecap="round" />
+            <ellipse class="lamp-bulb" cx="100" cy="266" rx="22" ry="9" fill="url(#lampBulb)" />
+        </svg>
+        <svg class="hero-wire" viewBox="0 0 1200 36" preserveAspectRatio="none" aria-hidden="true">
+            <path class="base" d="M0 18H340l16-12h44l16 12H820l16 12h44l16-12H1200" />
+            <path class="spark" d="M0 18H340l16-12h44l16 12H820l16 12h44l16-12H1200" />
+        </svg>
+        @if (!string.IsNullOrWhiteSpace(Model.Banner.Tag))
+        {<span class="tag">@Model.Banner.Tag</span>}
+        <h1 data-split>@Model.Banner.Title<br /><em>@Model.Banner.Highlight</em></h1>
+        <a class="btn" data-magnet href="@href">@Model.Banner.ButtonText ‹</a>
+    </section>
+}
+
+<div class="dk-only ticker" aria-hidden="true">
+    <div class="ticker-track">
+        @for (int k = 0; k < 2; k++)
+        {
+            <div class="ticker-set">
+                <span><svg class="i"><use href="#i-bolt" /></svg>ارسال به سراسر ایران</span>
+                <span><svg class="i"><use href="#i-bolt" /></svg>تهران همان روز</span>
+                <span><svg class="i"><use href="#i-bolt" /></svg>ضمانت اصالت کالا</span>
+                <span><svg class="i"><use href="#i-bolt" /></svg>پرداخت امن با درگاه بانکی</span>
+                <span><svg class="i"><use href="#i-bolt" /></svg>پشتیبانی هر روز ۹ صبح تا ۱۰ شب</span>
+            </div>
+        }
+    </div>
+</div>
+
+@if (Model.ProductOfDay != null)
+{
+    var p = Model.ProductOfDay;
+    var secs = p.OfferEndsAt.HasValue ? (int)System.Math.Max(0, (p.OfferEndsAt.Value - System.DateTime.Now).TotalSeconds) : 0;
+    <section class="pod reveal">
+        <div class="pod-text">
+            <small>پیشنهاد امروز</small>
+            <h2>@p.Title</h2>
+            @if (p.OldPrice.HasValue)
+            {<del>@Fa.Money(p.OldPrice.Value)</del>}
+            <b>@Fa.Money(p.Price)</b> تومان
+            @if (secs > 0)
+            {<div class="timer" id="timer" data-seconds="@secs">00:00:00</div>}
+            <a class="btn light" href="@Url.Action("Details","Products",new{slug=p.Slug})">مشاهده محصول ‹</a>
+        </div>
+        @if (!string.IsNullOrEmpty(p.ImageUrl))
+        {
+            <a class="dk-only pod-img" data-parallax href="@Url.Action("Details","Products",new{slug=p.Slug})" tabindex="-1" aria-hidden="true">
+                <img src="@Url.Content(p.ImageUrl)" alt="" loading="lazy" />
+            </a>
+        }
+    </section>
+}
+
+<section class="features reveal">
+    <div><i>🔒</i><b>پرداخت امن</b><small>درگاه بانکی معتبر</small></div>
+    <div><i>🚚</i><b>ارسال به سراسر ایران</b><small>تهران همان روز</small></div>
+    <div><i>🎧</i><b>پشتیبانی</b><small>هر روز ۹ صبح تا ۱۰ شب</small></div>
+    <div><i>↻</i><b>ضمانت اصالت</b><small>گارانتی معتبر</small></div>
+</section>
+
+<section class="sec reveal">
+    <h2 class="sec-title">دسته‌بندی‌ها</h2>
+    <div class="h-scroll">
+        @foreach (var c in Model.Categories)
+        {
+            <a class="arch" href="@Url.Action("Index","Products",new{category=c.Slug})">
+                <div class="arch-img">
+                    @if (!string.IsNullOrEmpty(c.Icon) && (c.Icon.StartsWith("~/") || c.Icon.StartsWith("/")))
+                    {
+                        <img src="@Url.Content(c.Icon)" alt="@c.Title" />
+                    }
+                    else
+                    {
+                        @c.Icon
+                    }
+                </div>
+                <b>@c.Title</b><small>@Fa.Num(c.Count) محصول</small>
+            </a>
+        }
+    </div>
+</section>
+
+<section class="sec reveal">
+    <h2 class="sec-title">حراج ویژه</h2>
+    <div class="grid">
+        @foreach (var p in Model.FlashSale)
+        {@Html.Partial("_ProductCard", p)}
+    </div>
+</section>

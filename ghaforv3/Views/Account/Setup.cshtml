@@ -1,0 +1,18 @@
+﻿@model Ghaforv3.Models.SetupVm
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "ساخت اولین سوپر ادمین"; }
+<div class="a-card a-narrow">
+    <p class="muted">این صفحه فقط تا وقتی هیچ سوپر ادمینی وجود ندارد کار می‌کند.</p>
+    @using (Html.BeginForm("Setup", "Account", FormMethod.Post, new { @class = "a-form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "a-err" })
+        @if (ViewBag.NeedKey == true)
+        {
+            <div class="f">@Html.LabelFor(m => m.SetupKey)@Html.PasswordFor(m => m.SetupKey, new { autocomplete = "off" })@Html.ValidationMessageFor(m => m.SetupKey, "", new { @class = "a-err" })</div>
+        }
+        <div class="f">@Html.LabelFor(m => m.FullName)@Html.TextBoxFor(m => m.FullName)@Html.ValidationMessageFor(m => m.FullName, "", new { @class = "a-err" })</div>
+        <div class="f">@Html.LabelFor(m => m.Mobile)@Html.TextBoxFor(m => m.Mobile, new { type = "tel", inputmode = "numeric" })@Html.ValidationMessageFor(m => m.Mobile, "", new { @class = "a-err" })</div>
+        <div class="f">@Html.LabelFor(m => m.Password)@Html.PasswordFor(m => m.Password)@Html.ValidationMessageFor(m => m.Password, "", new { @class = "a-err" })</div>
+        <button class="a-btn" type="submit">ساخت سوپر ادمین</button>
+    }
+</div>

@@ -1,0 +1,36 @@
+﻿@model System.Collections.Generic.List<Ghaforv3.Models.CategoryCard>
+@{
+    string mode = (ViewBag.Mode as string) ?? "nav";
+    int n = 0;
+}
+@if (mode == "mega")
+{
+    <div class="mega-in">
+        @foreach (var c in Model)
+        {
+            <a class="mega-tile" style="--i:@(n++)" href="@Url.Action("Index", "Products", new { category = c.Slug })">
+                <span class="mega-img">
+                    @if (!string.IsNullOrEmpty(c.Icon) && (c.Icon.StartsWith("~/") || c.Icon.StartsWith("/")))
+                    { <img src="@Url.Content(c.Icon)" alt="" loading="lazy" /> }
+                    else
+                    { <span>@c.Icon</span> }
+                </span>
+                <span class="mega-txt"><b>@c.Title</b><small>@Fa.Num(c.Count) محصول</small></span>
+            </a>
+        }
+    </div>
+}
+else if (mode == "footer")
+{
+    foreach (var c in Model)
+    {
+        <a href="@Url.Action("Index", "Products", new { category = c.Slug })">@c.Title</a>
+    }
+}
+else
+{
+    foreach (var c in Model.Take(4))
+    {
+        <a href="@Url.Action("Index", "Products", new { category = c.Slug })">@c.Title</a>
+    }
+}

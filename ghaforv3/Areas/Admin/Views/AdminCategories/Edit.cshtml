@@ -1,0 +1,24 @@
+﻿@model Ghaforv3.Models.CategoryFormVm
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = Model.Id == 0 ? "دستهٔ جدید" : "ویرایش دسته"; }
+
+@using (Html.BeginForm("Save", "AdminCategories", FormMethod.Post, new { @class = "a-form", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+    @Html.ValidationSummary(true, "", new { @class = "a-err" })
+
+    <div class="f">@Html.LabelFor(m => m.Title)@Html.TextBoxFor(m => m.Title)@Html.ValidationMessageFor(m => m.Title, "", new { @class = "a-err" })</div>
+    <div class="f">@Html.LabelFor(m => m.Slug)@Html.TextBoxFor(m => m.Slug, new { dir = "ltr", placeholder = "led" })@Html.ValidationMessageFor(m => m.Slug, "", new { @class = "a-err" })</div>
+    <div class="f">@Html.LabelFor(m => m.ParentId)@Html.DropDownListFor(m => m.ParentId, Model.Parents, "بدون والد (دستهٔ اصلی)")@Html.ValidationMessageFor(m => m.ParentId, "", new { @class = "a-err" })</div>
+    <div class="f">@Html.LabelFor(m => m.SortOrder)@Html.TextBoxFor(m => m.SortOrder, new { type = "number" })</div>
+    <div class="f">@Html.LabelFor(m => m.Icon)@Html.TextBoxFor(m => m.Icon)</div>
+    <div class="f">
+        <label>یا آپلود عکس دسته</label>
+        <input type="file" name="image" accept="image/jpeg,image/png,image/webp" />
+        <small class="muted">پیشنهاد: ۴۲۰×۵۱۰ (عمودی)</small>
+    </div>
+    <label class="chk">@Html.CheckBoxFor(m => m.IsActive) @Html.DisplayNameFor(m => m.IsActive)</label>
+
+    <button class="a-btn" type="submit">ذخیره</button>
+    <a class="a-btn ghost" href="@Url.Action("Index", "AdminCategories")">انصراف</a>
+}

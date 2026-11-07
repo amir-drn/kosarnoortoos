@@ -1,0 +1,74 @@
+﻿@model Ghaforv3.Models.ProductListViewModel
+@{
+    ViewBag.Title = Model.CategoryTitle ?? "همهٔ محصولات";
+}
+
+<div class="page-head">
+    <h1>@(Model.CategoryTitle ?? "همهٔ محصولات")</h1>
+    <small class="muted">@Fa.Num(Model.TotalCount) محصول@(string.IsNullOrWhiteSpace(Model.Q) ? "" : " برای «" + Model.Q + "»")</small>
+</div>
+
+<div class="shop">
+<aside class="shop-side">
+<nav class="chips">
+    <a class="chip @(string.IsNullOrEmpty(Model.Category) ? "active" : "")" href="@Url.Action("Index", "Products", new { q = Model.Q, sort = Model.Sort })">همه</a>
+    @foreach (var c in Model.Categories)
+    {
+        <a class="chip @(Model.Category == c.Slug ? "active" : "")" href="@Url.Action("Index", "Products", new { category = c.Slug, q = Model.Q, sort = Model.Sort })">@(c.Title)</a>
+    }
+</nav>
+
+<form class="sortbar filters" method="get" action="@Url.Action("Index", "Products")">
+    <input type="hidden" name="category" value="@(Model.Category)" />
+    <input type="hidden" name="q" value="@(Model.Q)" />
+    <label for="sort">مرتب‌سازی:</label>
+    <select id="sort" name="sort" data-autosubmit>
+        <option value="newest" @(Model.Sort != "cheap" && Model.Sort != "expensive" ? "selected" : "")>جدیدترین</option>
+        <option value="cheap" @(Model.Sort == "cheap" ? "selected" : "")>ارزان‌ترین</option>
+        <option value="expensive" @(Model.Sort == "expensive" ? "selected" : "")>گران‌ترین</option>
+    </select>
+    @if (Model.Brands != null && Model.Brands.Count > 0)
+    {
+        <label for="brand">برند:</label>
+        <select id="brand" name="brand" data-autosubmit>
+            <option value="">همهٔ برندها</option>
+            @foreach (var b in Model.Brands) { <option value="@(b.Slug)" @(Model.Brand == b.Slug ? "selected" : "")>@(b.Title)</option> }
+        </select>
+    }
+    <label>محدودهٔ قیمت (تومان):</label>
+    <div class="range">
+        <input type="number" name="min" min="0" inputmode="numeric" placeholder="از" value="@(Model.MinPrice.HasValue ? Model.MinPrice.Value.ToString("0") : "")" aria-label="حداقل قیمت" />
+        <input type="number" name="max" min="0" inputmode="numeric" placeholder="تا" value="@(Model.MaxPrice.HasValue ? Model.MaxPrice.Value.ToString("0") : "")" aria-label="حداکثر قیمت" />
+    </div>
+    <label class="chk"><input type="checkbox" name="instock" value="true" @(Model.InStock ? "checked" : "") data-autosubmit /> فقط کالاهای موجود</label>
+    <button type="submit" class="btn light">اعمال فیلتر</button>
+</form>
+</aside>
+<div class="shop-main">
+
+@if (Model.Products.Count == 0)
+{
+    <div class="empty">
+        <div>🔍</div>
+        <p>محصولی پیدا نشد.</p>
+        <a class="btn" href="@Url.Action("Index", "Products")">دیدن همهٔ محصولات</a>
+    </div>
+}
+else
+{
+    <div class="grid">
+        @foreach (var p in Model.Products) { @Html.Partial("_ProductCard", p) }
+    </div>
+}
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="pager" aria-label="صفحه‌بندی">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <a class="@(i == Model.Page ? "active" : "")" href="@Url.Action("Index", "Products", new { category = Model.Category, q = Model.Q, sort = Model.Sort, brand = Model.Brand, min = Model.MinPrice, max = Model.MaxPrice, instock = Model.InStock ? (bool?)true : null, page = i })">@Fa.Num(i)</a>
+        }
+    </nav>
+}
+</div>
+</div>

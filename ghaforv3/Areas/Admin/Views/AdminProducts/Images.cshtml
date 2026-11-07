@@ -1,0 +1,24 @@
+﻿@model Ghaforv3.Models.ProductImagesVm
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "گالری: " + Model.Title; }
+<p class="muted">عکس اصلی محصول را از «ویرایش محصول» عوض کن؛ اینجا عکس‌های اضافه (گالری صفحهٔ محصول) را مدیریت کن. حداکثر ۱۲ عکس.</p>
+<div class="a-gallery">
+    @foreach (var i in Model.Images)
+    {
+        <div class="a-gimg">
+            <img src="@Url.Content(i.ImageUrl)" alt="" />
+            @using (Html.BeginForm("DeleteImage", "AdminProducts", new { id = Model.ProductId, imageId = i.Id }, FormMethod.Post, new { data_confirm = "این عکس حذف شود؟" }))
+            {
+                @Html.AntiForgeryToken()
+                <button class="a-btn sm danger" type="submit">حذف</button>
+            }
+        </div>
+    }
+</div>
+@if (Model.Images.Count == 0) { <p class="muted">عکس اضافه‌ای ثبت نشده.</p> }
+@using (Html.BeginForm("AddImages", "AdminProducts", new { id = Model.ProductId }, FormMethod.Post, new { @class = "a-form", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="f"><label>افزودن عکس (چندتایی)</label><input type="file" name="files" multiple accept="image/jpeg,image/png,image/webp" /></div>
+    <button class="a-btn" type="submit">آپلود</button>
+    <a class="a-btn ghost" href="@Url.Action("Edit", "AdminProducts", new { id = Model.ProductId })">بازگشت به محصول</a>
+}

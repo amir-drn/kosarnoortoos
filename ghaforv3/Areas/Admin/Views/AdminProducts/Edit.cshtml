@@ -1,0 +1,39 @@
+﻿@model Ghaforv3.Models.ProductFormVm
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = Model.Id == 0 ? "محصول جدید" : "ویرایش محصول"; }
+
+@using (Html.BeginForm("Save", "AdminProducts", FormMethod.Post, new { @class = "a-form", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.ImageUrl)
+    @Html.ValidationSummary(true, "", new { @class = "a-err" })
+
+    <div class="f">@Html.LabelFor(m => m.Title)@Html.TextBoxFor(m => m.Title)@Html.ValidationMessageFor(m => m.Title, "", new { @class = "a-err" })</div>
+    <div class="f">@Html.LabelFor(m => m.Slug)@Html.TextBoxFor(m => m.Slug, new { dir = "ltr", placeholder = "led-10w-e27" })@Html.ValidationMessageFor(m => m.Slug, "", new { @class = "a-err" })</div>
+    <div class="f">@Html.LabelFor(m => m.CategoryId)@Html.DropDownListFor(m => m.CategoryId, Model.Categories, "انتخاب کن...")@Html.ValidationMessageFor(m => m.CategoryId, "", new { @class = "a-err" })</div>
+    <div class="f">@Html.LabelFor(m => m.BrandId)@Html.DropDownListFor(m => m.BrandId, Model.Brands, "بدون برند")</div>
+    <div class="two">
+        <div class="f">@Html.LabelFor(m => m.Price)@Html.TextBoxFor(m => m.Price, new { type = "number", inputmode = "numeric" })@Html.ValidationMessageFor(m => m.Price, "", new { @class = "a-err" })</div>
+        <div class="f">@Html.LabelFor(m => m.OldPrice)@Html.TextBoxFor(m => m.OldPrice, new { type = "number", inputmode = "numeric" })@Html.ValidationMessageFor(m => m.OldPrice, "", new { @class = "a-err" })</div>
+    </div>
+    <div class="two">
+        <div class="f">@Html.LabelFor(m => m.Unit)@Html.TextBoxFor(m => m.Unit)</div>
+        <div class="f">@Html.LabelFor(m => m.Stock)@Html.TextBoxFor(m => m.Stock, new { type = "number", inputmode = "numeric" })@Html.ValidationMessageFor(m => m.Stock, "", new { @class = "a-err" })</div>
+    </div>
+    <div class="f">@Html.LabelFor(m => m.Description)@Html.TextAreaFor(m => m.Description, 5, 30, null)</div>
+
+    <div class="f">
+        <label>عکس محصول</label>
+        @if (!string.IsNullOrEmpty(Model.ImageUrl)) { <img class="prev" src="@Url.Content(Model.ImageUrl)" alt="" /> }
+        <input type="file" name="image" accept="image/jpeg,image/png,image/webp" />
+        <small class="muted">jpg / png / webp، حداکثر ۲ مگابایت. پیشنهاد: ۶۰۰×۶۰۰</small>
+    </div>
+
+    <label class="chk">@Html.CheckBoxFor(m => m.IsActive) @Html.DisplayNameFor(m => m.IsActive)</label>
+    <label class="chk">@Html.CheckBoxFor(m => m.IsFlashSale) @Html.DisplayNameFor(m => m.IsFlashSale)</label>
+    <label class="chk">@Html.CheckBoxFor(m => m.IsDailyOffer) @Html.DisplayNameFor(m => m.IsDailyOffer)</label>
+    <div class="f">@Html.LabelFor(m => m.OfferEndsAt)@Html.TextBoxFor(m => m.OfferEndsAt, "{0:yyyy-MM-ddTHH:mm}", new { type = "datetime-local" })</div>
+
+    <button class="a-btn" type="submit">ذخیره</button>
+    <a class="a-btn ghost" href="@Url.Action("Index", "AdminProducts")">انصراف</a>
+}

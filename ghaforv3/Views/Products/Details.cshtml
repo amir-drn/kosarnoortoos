@@ -1,0 +1,100 @@
+﻿@model Ghaforv3.Models.ProductDetailsViewModel
+@{
+    var p = Model.Product;
+    ViewBag.Title = p.Title;
+    var plain = string.IsNullOrWhiteSpace(p.Description) ? "" : System.Text.RegularExpressions.Regex.Replace(p.Description, "\\s+", " ").Trim();
+    ViewBag.Description = (plain.Length > 0 ? plain : p.Title + " - خرید آنلاین از غفوریان");
+    if (((string)ViewBag.Description).Length > 160) { ViewBag.Description = ((string)ViewBag.Description).Substring(0, 157) + "..."; }
+    ViewBag.OgImage = string.IsNullOrEmpty(p.ImageUrl) ? null : Url.Content(p.ImageUrl);
+    var schema = new System.Collections.Generic.Dictionary<string, object>
+    {
+        { "@context", "https://schema.org" }, { "@type", "Product" }, { "name", p.Title },
+        { "description", ViewBag.Description }, { "sku", p.Id.ToString() },
+        { "offers", new System.Collections.Generic.Dictionary<string, object> {
+            { "@type", "Offer" }, { "priceCurrency", "IRT" }, { "price", decimal.Round(p.Price, 0).ToString(System.Globalization.CultureInfo.InvariantCulture) },
+            { "availability", p.Stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock" } } }
+    };
+    if (p.Brand != null) { schema["brand"] = new System.Collections.Generic.Dictionary<string, object> { { "@type", "Brand" }, { "name", p.Brand.Title } }; }
+    if (!string.IsNullOrEmpty(p.ImageUrl)) { schema["image"] = Ghaforv3.Helpers.Site.Origin(Request) + Url.Content(p.ImageUrl); }
+    var discount = (p.OldPrice.HasValue && p.OldPrice.Value > 0) ? (int)(100 - p.Price * 100 / p.OldPrice.Value) : 0;
+
+    // عکس اصلی + عکس‌های گالری
+    var images = new System.Collections.Generic.List<string>();
+    if (!string.IsNullOrEmpty(p.ImageUrl)) { images.Add(p.ImageUrl); }
+    foreach (var im in p.ProductImages.OrderBy(i => i.SortOrder)) { images.Add(im.ImageUrl); }
+}
+
+<script type="application/ld+json">@Html.Raw(System.Web.Helpers.Json.Encode(schema))</script>
+<nav class="crumbs" aria-label="مسیر صفحه">
+    <a href="@Url.Action("Index", "Home")">خانه</a> ›
+    <a href="@Url.Action("Index", "Products", new { category = p.Category.Slug })">@(p.Category.Title)</a> ›
+    <span>@(p.Title)</span>
+</nav>
+
+<div class="pd">
+<section class="gallery" data-zoom>
+    @if (discount > 0) { <span class="badge">@Fa.Num(discount)٪ تخفیف</span> }
+    <div class="slides" id="slides" tabindex="0" aria-label="گالری عکس محصول">
+        @if (images.Count == 0)
+        {
+            <div class="slide"><span class="ph">💡</span></div>
+        }
+        else
+        {
+            foreach (var img in images)
+            {
+                <div class="slide"><img src="@Url.Content(img)" alt="@(p.Title)" decoding="async" /></div>
+            }
+        }
+    </div>
+    <div class="dots" id="dots"></div>
+</section>
+
+<section class="pinfo">
+    <small class="muted">@(p.Brand != null ? p.Brand.Title + " · " : "")@(p.Category.Title)</small>
+    <div class="title-row"><h1>@(p.Title)</h1><button type="button" class="heart lg" data-wish="@(p.Id)" aria-label="افزودن به علاقه‌مندی‌ها" aria-pressed="false"><svg class="i"><use href="#i-heart" /></svg></button></div>
+
+    <div class="price-lg">
+        @if (p.OldPrice.HasValue) { <del>@Fa.Money(p.OldPrice.Value)</del> }
+        <b>@Fa.Money(p.Price)</b> <span>تومان</span> <small class="muted">@(p.Unit)</small>
+    </div>
+
+    @if (p.Stock <= 0)
+    {
+        <span class="stock out">ناموجود</span>
+    }
+    else if (p.Stock <= 10)
+    {
+        <span class="stock low">فقط @Fa.Num(p.Stock) عدد در انبار</span>
+    }
+    else
+    {
+        <span class="stock ok">موجود در انبار</span>
+    }
+
+    <div class="buy">
+        <div class="qty">
+            <button type="button" id="qtyPlus" aria-label="افزایش">+</button>
+            <input id="qty" type="number" value="1" min="1" max="@(p.Stock)" readonly />
+            <button type="button" id="qtyMinus" aria-label="کاهش">−</button>
+        </div>
+        <button class="add-btn" type="button" data-add data-id="@(p.Id)" data-title="@(p.Title)" @(p.Stock <= 0 ? "disabled" : "")>افزودن به سبد خرید</button>
+    </div>
+</section>
+
+</div>
+
+<section class="desc">
+    <h2>توضیحات</h2>
+    <p>@(string.IsNullOrWhiteSpace(p.Description) ? "توضیحاتی برای این محصول ثبت نشده است." : p.Description)</p>
+</section>
+
+@if (Model.Related.Count > 0)
+{
+    <section class="sec">
+        <h2 class="sec-title">محصولات مشابه</h2>
+        <div class="grid">
+            @foreach (var r in Model.Related) { @Html.Partial("_ProductCard", r) }
+        </div>
+    </section>
+}

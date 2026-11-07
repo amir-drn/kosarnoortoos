@@ -1,0 +1,26 @@
+﻿@model System.Collections.Generic.List<Ghaforv3.Models.Address>
+@{ ViewBag.Title = "آدرس‌های من"; ViewBag.NoIndex = true; }
+<div class="page-head"><h1>آدرس‌های من</h1></div>
+@if (TempData["ok"] != null) { <div class="flash ok">@TempData["ok"]</div> }
+@if (TempData["err"] != null) { <div class="flash err">@TempData["err"]</div> }
+<div class="clist">
+    @foreach (var a in Model)
+    {
+        <article class="citem addr-card">
+            <div class="cinfo">
+                <b>@(a.Receiver) · @Fa.Digits(a.Phone)</b>
+                <small class="muted">@(a.Province)، @(a.City)، @(a.Details)</small>
+                <div class="acts">
+                    <a class="btn light sm" href="@Url.Action("Edit","Addresses",new{id=a.Id})">ویرایش</a>
+                    @using (Html.BeginForm("Delete", "Addresses", new { id = a.Id }, FormMethod.Post, new { data_confirm = "این آدرس حذف شود؟" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button class="btn sm danger" type="submit">حذف</button>
+                    }
+                </div>
+            </div>
+        </article>
+    }
+</div>
+@if (Model.Count == 0) { <p class="center muted">هنوز آدرسی ذخیره نکرده‌ای.</p> }
+<p class="center"><a class="btn" href="@Url.Action("Edit","Addresses")">＋ آدرس جدید</a></p>

@@ -1,0 +1,23 @@
+﻿@model Ghaforv3.Models.BannerFormVm
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = Model.Id == 0 ? "بنر جدید" : "ویرایش بنر"; }
+@using (Html.BeginForm("Save", "AdminBanners", FormMethod.Post, new { @class = "a-form", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+    @Html.ValidationSummary(true, "", new { @class = "a-err" })
+    <div class="f">@Html.LabelFor(m => m.Tag)@Html.TextBoxFor(m => m.Tag)@Html.ValidationMessageFor(m => m.Tag, "", new { @class = "a-err" })</div>
+    <div class="f">@Html.LabelFor(m => m.Title)@Html.TextBoxFor(m => m.Title)@Html.ValidationMessageFor(m => m.Title, "", new { @class = "a-err" })</div>
+    <div class="f">@Html.LabelFor(m => m.Highlight)@Html.TextBoxFor(m => m.Highlight)@Html.ValidationMessageFor(m => m.Highlight, "", new { @class = "a-err" })</div>
+    <div class="f">@Html.LabelFor(m => m.ButtonText)@Html.TextBoxFor(m => m.ButtonText)</div>
+    <div class="f">@Html.LabelFor(m => m.LinkUrl)@Html.TextBoxFor(m => m.LinkUrl, new { dir = "ltr", placeholder = "/shop/led" })@Html.ValidationMessageFor(m => m.LinkUrl, "", new { @class = "a-err" })</div>
+    <div class="f">@Html.LabelFor(m => m.SortOrder)@Html.TextBoxFor(m => m.SortOrder, new { type = "number" })</div>
+    <div class="f">
+        <label>عکس پس‌زمینه</label>
+        @if (!string.IsNullOrEmpty(Model.ImageUrl)) { <img class="a-preview" src="@Url.Content(Model.ImageUrl)" alt="" /> }
+        <input type="file" name="image" accept="image/jpeg,image/png,image/webp" />
+        <small class="muted">پیشنهاد: عرض ۱۶۰۰ پیکسل به بالا، سبک و بدون متن روی عکس. بدون عکس، لامپ متحرک نمایش داده می‌شود.</small>
+    </div>
+    <label class="chk">@Html.CheckBoxFor(m => m.IsActive) @Html.DisplayNameFor(m => m.IsActive)</label>
+    <button class="a-btn" type="submit">ذخیره</button>
+    <a class="a-btn ghost" href="@Url.Action("Index", "AdminBanners")">انصراف</a>
+}

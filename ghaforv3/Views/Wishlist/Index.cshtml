@@ -1,0 +1,13 @@
+﻿@model System.Collections.Generic.List<Ghaforv3.Models.Product>
+@{ ViewBag.Title = "علاقه‌مندی‌ها"; ViewBag.NoIndex = true; }
+<div class="page-head"><h1>علاقه‌مندی‌ها</h1></div>
+@if (Model.Count == 0)
+{
+    <div class="empty"><div style="font-size:3rem">♡</div><p class="muted">هنوز محصولی را ذخیره نکرده‌ای. روی قلب کنار هر محصول بزن.</p><a class="btn" href="@Url.Action("Index","Products")">رفتن به فروشگاه</a></div>
+}
+else
+{
+    <div class="grid">
+        @foreach (var p in Model) { @Html.Partial("_ProductCard", p) }
+    </div>
+}

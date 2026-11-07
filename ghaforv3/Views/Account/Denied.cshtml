@@ -1,0 +1,11 @@
+﻿@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "عدم دسترسی"; }
+<div class="a-card a-narrow center">
+    <div style="font-size:3rem">⛔</div>
+    <p>به این بخش دسترسی نداری.</p>
+    <a class="a-btn" href="@Url.Action("Index", "Home")">بازگشت به سایت</a>
+    @using (Html.BeginForm("Logout", "Account", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <button type="submit" class="a-btn ghost">خروج و ورود با حساب دیگر</button>
+    }
+</div>

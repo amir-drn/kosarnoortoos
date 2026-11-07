@@ -1,0 +1,49 @@
+﻿@model Ghaforv3.Models.Product
+@{
+    var discount = (Model.OldPrice.HasValue && Model.OldPrice.Value > 0)
+        ? (int)(100 - Model.Price * 100 / Model.OldPrice.Value)
+        : 0;
+    var url = Url.Action("Details", "Products", new { slug = Model.Slug });
+
+}
+<article class="card reveal">
+    @if (discount > 0)
+    {
+        <span class="badge">@(discount)٪ تخفیف</span>
+    }
+    <button type="button" class="heart" data-wish="@(Model.Id)" aria-label="افزودن به علاقه‌مندی‌ها" aria-pressed="false"><svg class="i"><use href="#i-heart" /></svg></button>
+    <a class="card-img" href="@url">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Url.Content(Model.ImageUrl)" alt="@(Model.Title)" loading="lazy" decoding="async" />
+        }
+        else
+        {
+            <span>💡</span>
+        }
+    </a>
+    <small class="muted">@(Model.Category != null ? Model.Category.Title : "")</small>
+    <h3><a href="@url">@(Model.Title)</a></h3>
+    <div class="card-bottom">
+        @if (Model.Stock > 0)
+        {
+            <button class="cart-btn" aria-label="افزودن به سبد" data-id="@(Model.Id)" data-title="@(Model.Title)">🛒</button>
+        }
+        else
+        {
+            <span class="sold-out">ناموجود</span>
+        }
+        <div class="price">
+            @if (Model.OldPrice.HasValue)
+            {
+                <del>@Fa.Money(Model.OldPrice.Value)</del>
+            }
+            <b>@Fa.Money(Model.Price)</b> <span>تومان</span>
+            <small class="muted">@(Model.Unit)</small>
+        </div>
+    </div>
+    @if (Model.Stock > 0 && Model.Stock <= 10)
+    {
+        <small class="muted">فقط @Fa.Num(Model.Stock) عدد مانده</small>
+    }
+</article>

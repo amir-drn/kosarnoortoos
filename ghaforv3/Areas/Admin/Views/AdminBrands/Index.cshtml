@@ -1,0 +1,21 @@
+﻿@model System.Collections.Generic.List<Ghaforv3.Models.Brand>
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "برندها"; var counts = (System.Collections.Generic.Dictionary<int, int>)ViewBag.Counts; }
+@foreach (var b in Model)
+{
+    <div class="a-item">
+        <div class="grow">
+            <b>@(b.Title)</b>
+            <small class="muted">@(b.Slug) · @(counts.ContainsKey(b.Id) ? counts[b.Id] : 0) محصول</small>
+            <div class="acts">
+                <a class="a-btn sm" href="@Url.Action("Edit", "AdminBrands", new { id = b.Id })">ویرایش</a>
+                @using (Html.BeginForm("Delete", "AdminBrands", new { id = b.Id }, FormMethod.Post, new { data_confirm = "این برند حذف شود؟" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <button class="a-btn sm danger" type="submit">حذف</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+@if (Model.Count == 0) { <p class="muted">هنوز برندی ثبت نشده.</p> }
+<a class="a-fab" href="@Url.Action("Create", "AdminBrands")" aria-label="برند جدید">＋</a>

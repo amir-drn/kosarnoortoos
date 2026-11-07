@@ -1,0 +1,30 @@
+﻿@model Ghaforv3.Models.DashboardVm
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "داشبورد"; }
+
+<div class="a-stats">
+    <a class="stat" href="@Url.Action("Index", "AdminProducts")"><b>@(Model.Products)</b><span>محصول</span></a>
+    <a class="stat" href="@Url.Action("Index", "AdminCategories")"><b>@(Model.Categories)</b><span>دسته‌بندی</span></a>
+    <a class="stat" href="@Url.Action("Index", "AdminUsers")"><b>@(Model.Customers)</b><span>مشتری</span></a>
+    <a class="stat" href="@Url.Action("Index", "AdminOrders")"><b>@(Model.Orders)</b><span>سفارش</span></a>
+    <a class="stat hot" href="@Url.Action("Index", "AdminOrders", new { status = 1 })"><b>@(Model.NewOrders)</b><span>سفارش جدید</span></a>
+    <div class="stat"><b>@(Model.Revenue.ToString("N0"))</b><span>فروش (تومان)</span></div>
+</div>
+
+<h2 class="a-h">موجودی کم</h2>
+@if (Model.LowStock.Count == 0) { <p class="muted">محصولی با موجودی کم نداریم.</p> }
+@foreach (var p in Model.LowStock)
+{
+    <a class="a-row" href="@Url.Action("Edit", "AdminProducts", new { id = p.Id })">
+        <span class="grow">@(p.Title)</span><span class="a-badge warn">@(p.Stock) عدد</span>
+    </a>
+}
+
+<h2 class="a-h">آخرین سفارش‌ها</h2>
+@if (Model.Latest.Count == 0) { <p class="muted">هنوز سفارشی ثبت نشده.</p> }
+@foreach (var o in Model.Latest)
+{
+    <a class="a-row" href="@Url.Action("Details", "AdminOrders", new { id = o.Id })">
+        <span class="grow">#@(o.Id) · @(o.Customer)</span>
+        <span class="a-badge">@Ghaforv3.Models.AdminLabels.Order(o.Status)</span>
+    </a>
+}

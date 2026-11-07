@@ -1,0 +1,11 @@
+﻿@model Ghaforv3.Models.IPaged
+@if (Model.Pages > 1)
+{
+    var c = (string)ViewContext.RouteData.Values["controller"];
+    <nav class="a-pager">
+        @for (int i = 1; i <= Model.Pages; i++)
+        {
+            <a class="@(i == Model.Page ? "on" : "")" href="@Url.Action("Index", c, new { area = "Admin", q = Model.Q, status = Model.Status, page = i })">@(i)</a>
+        }
+    </nav>
+}

@@ -1,0 +1,19 @@
+﻿@model Ghaforv3.Models.Payment
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="robots" content="noindex" />
+<title>بانک آزمایشی</title>
+<link href="@Ghaforv3.Helpers.Asset.Url("~/Content/site.css")" rel="stylesheet" /><link href="@Ghaforv3.Helpers.Asset.Url("~/Content/auth.css")" rel="stylesheet" /></head>
+<body class="err-page">
+<main class="auth" style="width:100%;max-width:440px">
+    <h1>درگاه آزمایشی پرداخت</h1>
+    <p class="muted">این صفحه فقط برای تست روی کامپیوتر خودت است و پولی کم نمی‌شود. برای پرداخت واقعی در Web.config مقدار PaymentGateway را ZarinPal بگذار.</p>
+    <p>سفارش #@Fa.Num(Model.OrderId) · مبلغ <b>@Fa.Money(Model.Amount) تومان</b></p>
+    @using (Html.BeginForm("DemoPay", "Payment", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="authority" value="@Model.RefNumber" />
+        <button class="add-btn" type="submit" name="ok" value="true">پرداخت موفق</button>
+        <button class="add-btn ghost" type="submit" name="ok" value="false">انصراف / پرداخت ناموفق</button>
+    }
+</main></body></html>

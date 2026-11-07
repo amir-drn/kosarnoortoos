@@ -1,0 +1,37 @@
+﻿@model Ghaforv3.Models.OrderDetailsVm
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "سفارش #" + Model.Id; }
+
+<div class="a-card">
+    <p><b>مشتری:</b> @(Model.Customer) (@(Model.Mobile))</p>
+    <p><b>گیرنده:</b> @(Model.Receiver) · @(Model.Phone)</p>
+    <p><b>آدرس:</b> @(Model.Address)</p>
+    <p><b>تاریخ:</b> @Fa.Stamp(Model.CreatedAt)</p>
+</div>
+
+<h2 class="a-h">اقلام</h2>
+@foreach (var i in Model.Items)
+{
+    <div class="a-row"><span class="grow">@(i.Title) × @(i.Quantity)</span><b>@((i.UnitPrice * i.Quantity).ToString("N0"))</b></div>
+}
+<div class="a-row total"><span class="grow">جمع کل</span><b>@(Model.Total.ToString("N0")) تومان</b></div>
+
+@if (Model.RefundNeeded)
+{
+    <div class="a-flash err">این سفارش لغو شده ولی پرداخت موفق دارد؛ مبلغ را به مشتری برگردان.</div>
+}
+@if (Model.PaymentLines != null && Model.PaymentLines.Count > 0)
+{
+    <h2 class="a-h">پرداخت‌ها</h2>
+    foreach (var l in Model.PaymentLines) { <div class="a-row"><span class="grow">@(l)</span></div> }
+}
+
+<h2 class="a-h">وضعیت</h2>
+@using (Html.BeginForm("SetStatus", "AdminOrders", FormMethod.Post, new { @class = "a-form" }))
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@(Model.Id)" />
+    <select name="status">
+        @for (byte s = 0; s <= 4; s++) { <option value="@(s)" @(Model.Status == s ? "selected" : "")>@Ghaforv3.Models.AdminLabels.Order(s)</option> }
+    </select>
+    <button class="a-btn" type="submit">ثبت وضعیت</button>
+}

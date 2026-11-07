@@ -1,0 +1,19 @@
+﻿@model Ghaforv3.Models.AddressForm
+@{ ViewBag.Title = Model.Id == 0 ? "آدرس جدید" : "ویرایش آدرس"; ViewBag.NoIndex = true; }
+<div class="auth">
+    <h1>@ViewBag.Title</h1>
+    @using (Html.BeginForm("Save", "Addresses", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.Id)
+        @Html.ValidationSummary(true, "", new { @class = "err-note" })
+        <div class="f">@Html.LabelFor(m => m.Receiver)@Html.TextBoxFor(m => m.Receiver)@Html.ValidationMessageFor(m => m.Receiver, "", new { @class = "err-note" })</div>
+        <div class="f">@Html.LabelFor(m => m.Phone)@Html.TextBoxFor(m => m.Phone, new { dir = "ltr", inputmode = "tel" })@Html.ValidationMessageFor(m => m.Phone, "", new { @class = "err-note" })</div>
+        <div class="f">@Html.LabelFor(m => m.Province)@Html.TextBoxFor(m => m.Province)@Html.ValidationMessageFor(m => m.Province, "", new { @class = "err-note" })</div>
+        <div class="f">@Html.LabelFor(m => m.City)@Html.TextBoxFor(m => m.City)@Html.ValidationMessageFor(m => m.City, "", new { @class = "err-note" })</div>
+        <div class="f">@Html.LabelFor(m => m.PostalCode)@Html.TextBoxFor(m => m.PostalCode, new { dir = "ltr", inputmode = "numeric" })@Html.ValidationMessageFor(m => m.PostalCode, "", new { @class = "err-note" })</div>
+        <div class="f">@Html.LabelFor(m => m.Details)@Html.TextAreaFor(m => m.Details, new { rows = 3 })@Html.ValidationMessageFor(m => m.Details, "", new { @class = "err-note" })</div>
+        <button class="add-btn" type="submit">ذخیره</button>
+        <a class="add-btn ghost center" href="@Url.Action("Index","Addresses")">انصراف</a>
+    }
+</div>

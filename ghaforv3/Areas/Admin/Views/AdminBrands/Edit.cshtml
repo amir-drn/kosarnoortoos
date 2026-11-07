@@ -1,0 +1,12 @@
+﻿@model Ghaforv3.Models.BrandFormVm
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = Model.Id == 0 ? "برند جدید" : "ویرایش برند"; }
+@using (Html.BeginForm("Save", "AdminBrands", FormMethod.Post, new { @class = "a-form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+    @Html.ValidationSummary(true, "", new { @class = "a-err" })
+    <div class="f">@Html.LabelFor(m => m.Title)@Html.TextBoxFor(m => m.Title)@Html.ValidationMessageFor(m => m.Title, "", new { @class = "a-err" })</div>
+    <div class="f">@Html.LabelFor(m => m.Slug)@Html.TextBoxFor(m => m.Slug, new { dir = "ltr", placeholder = "osram" })@Html.ValidationMessageFor(m => m.Slug, "", new { @class = "a-err" })</div>
+    <button class="a-btn" type="submit">ذخیره</button>
+    <a class="a-btn ghost" href="@Url.Action("Index", "AdminBrands")">انصراف</a>
+}

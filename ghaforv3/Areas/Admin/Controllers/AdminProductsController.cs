@@ -1,0 +1,151 @@
+﻿using System;
+using System.Data.Entity.Infrastructure;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using Ghaforv3.Helpers;
+using Ghaforv3.Models;
+
+namespace Ghaforv3.Areas.Admin.Controllers
+{
+    public class AdminProductsController : BaseAdminController
+    {
+        private const int PageSize = 10;
+
+        public ActionResult Index(string q, int page = 1)
+        {
+            IQueryable<Product> query = db.Products;
+            if (!string.IsNullOrWhiteSpace(q)) query = query.Where(p => p.Title.Contains(q) || p.Slug.Contains(q));
+            int total = query.Count();
+            int pages = (int)Math.Ceiling(total / (double)PageSize);
+            page = ClampPage(page, pages);
+            var rows = query.OrderByDescending(p => p.Id).Skip((page - 1) * PageSize).Take(PageSize)
+                .Select(p => new ProductRow { Id = p.Id, Title = p.Title, Slug = p.Slug, CategoryTitle = p.Category.Title,
+                    Price = p.Price, Stock = p.Stock, IsActive = p.IsActive, ImageUrl = p.ImageUrl }).ToList();
+            return View(new PagedVm<ProductRow> { Items = rows, Page = page, Pages = pages, Total = total, Q = q });
+        }
+
+        public ActionResult Create()
+        {
+            return View("Edit", Fill(new ProductFormVm { IsActive = true, Unit = "هر عدد" }));
+        }
+
+        public ActionResult Edit(int id)
+        {
+            var p = db.Products.Find(id);
+            if (p == null) return HttpNotFound();
+            return View(Fill(new ProductFormVm
+            {
+                Id = p.Id, Title = p.Title, Slug = p.Slug, CategoryId = p.CategoryId, BrandId = p.BrandId,
+                Price = p.Price, OldPrice = p.OldPrice, Unit = p.Unit, Stock = p.Stock, Description = p.Description,
+                IsActive = p.IsActive, IsDailyOffer = p.IsDailyOffer, IsFlashSale = p.IsFlashSale,
+                OfferEndsAt = p.OfferEndsAt, ImageUrl = p.ImageUrl
+            }));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult Save(ProductFormVm m, HttpPostedFileBase image)
+        {
+            m.Slug = (m.Slug ?? "").Trim().ToLowerInvariant();
+            if (db.Products.Any(p => p.Slug == m.Slug && p.Id != m.Id)) ModelState.AddModelError("Slug", "این Slug قبلاً استفاده شده");
+            if (m.OldPrice.HasValue && m.Price.HasValue && m.OldPrice < m.Price) ModelState.AddModelError("OldPrice", "قیمت قبل از تخفیف باید بیشتر از قیمت فعلی باشد");
+
+            string newUrl = null;
+            if (ModelState.IsValid && image != null && image.ContentLength > 0)
+            {
+                string err;
+                newUrl = ImageUpload.Save(Server, image, m.Slug, out err);
+                if (err != null) ModelState.AddModelError("", err);
+            }
+            if (!ModelState.IsValid) return View("Edit", Fill(m));
+
+            Product product;
+            if (m.Id == 0) { product = new Product { CreatedAt = DateTime.Now }; db.Products.Add(product); }
+            else { product = db.Products.Find(m.Id); if (product == null) return HttpNotFound(); }
+
+            product.Title = m.Title.Trim(); product.Slug = m.Slug; product.CategoryId = m.CategoryId.Value; product.BrandId = m.BrandId;
+            product.Price = m.Price.Value; product.OldPrice = m.OldPrice; product.Stock = m.Stock;
+            product.Unit = string.IsNullOrWhiteSpace(m.Unit) ? "هر عدد" : m.Unit.Trim();
+            product.Description = m.Description; product.IsActive = m.IsActive;
+            product.IsDailyOffer = m.IsDailyOffer; product.IsFlashSale = m.IsFlashSale; product.OfferEndsAt = m.OfferEndsAt;
+            if (newUrl != null) { ImageUpload.Delete(Server, product.ImageUrl); product.ImageUrl = newUrl; }
+
+            db.SaveChanges();
+            System.Web.HttpRuntime.Cache.Remove(Ghaforv3.Controllers.HomeController.CatsCacheKey);   // شمارندهٔ محصولات دسته‌ها تازه شود
+            TempData["ok"] = "محصول ذخیره شد";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult Delete(int id)
+        {
+            var p = db.Products.Find(id);
+            if (p == null) return HttpNotFound();
+            try
+            {
+                db.Products.Remove(p);
+                db.SaveChanges();
+                ImageUpload.Delete(Server, p.ImageUrl);
+                System.Web.HttpRuntime.Cache.Remove(Ghaforv3.Controllers.HomeController.CatsCacheKey);
+                TempData["ok"] = "محصول حذف شد";
+            }
+            catch (DbUpdateException)
+            {
+                TempData["err"] = "این محصول در سفارش‌ها استفاده شده و حذف نمی‌شود؛ به‌جای حذف، غیرفعالش کن.";
+            }
+            return RedirectToAction("Index");
+        }
+
+        // ---------- گالری عکس‌های اضافهٔ محصول ----------
+        public ActionResult Images(int id)
+        {
+            var p = db.Products.Find(id);
+            if (p == null) return HttpNotFound();
+            return View(new ProductImagesVm { ProductId = p.Id, Title = p.Title,
+                Images = db.ProductImages.Where(i => i.ProductId == id).OrderBy(i => i.SortOrder).ThenBy(i => i.Id).ToList() });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult AddImages(int id, HttpPostedFileBase[] files)
+        {
+            var p = db.Products.Find(id);
+            if (p == null) return HttpNotFound();
+            int added = 0, order = (db.ProductImages.Where(i => i.ProductId == id).Max(i => (int?)i.SortOrder) ?? 0) + 1;
+            int existing = db.ProductImages.Count(i => i.ProductId == id);
+            string firstError = null;
+            foreach (var f in (files ?? new HttpPostedFileBase[0]).Where(f => f != null && f.ContentLength > 0))
+            {
+                if (existing + added >= 12) { firstError = "حداکثر ۱۲ عکس برای هر محصول"; break; }
+                string err;
+                var url = ImageUpload.Save(Server, f, p.Slug + "-g", out err);
+                if (err != null) { if (firstError == null) firstError = err; continue; }
+                db.ProductImages.Add(new ProductImage { ProductId = id, ImageUrl = url, SortOrder = order++ });
+                added++;
+            }
+            if (added > 0) db.SaveChanges();
+            if (added > 0) TempData["ok"] = added + " عکس اضافه شد";
+            if (firstError != null) TempData["err"] = firstError;
+            return RedirectToAction("Images", new { id });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult DeleteImage(int id, int imageId)
+        {
+            var img = db.ProductImages.FirstOrDefault(i => i.Id == imageId && i.ProductId == id);   // فقط عکسِ همین محصول
+            if (img == null) return HttpNotFound();
+            db.ProductImages.Remove(img);
+            db.SaveChanges();
+            ImageUpload.Delete(Server, img.ImageUrl);
+            TempData["ok"] = "عکس حذف شد";
+            return RedirectToAction("Images", new { id });
+        }
+
+        private ProductFormVm Fill(ProductFormVm m)
+        {
+            m.Categories = new SelectList(db.Categories.OrderBy(c => c.SortOrder).ToList(), "Id", "Title", m.CategoryId);
+            m.Brands = new SelectList(db.Brands.OrderBy(b => b.Title).ToList(), "Id", "Title", m.BrandId);
+            if (m.Id > 0 && m.ImageUrl == null) m.ImageUrl = db.Products.Where(p => p.Id == m.Id).Select(p => p.ImageUrl).FirstOrDefault();
+            return m;
+        }
+    }
+}

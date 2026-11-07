@@ -1,0 +1,54 @@
+﻿@model Ghaforv3.Models.CheckoutVm
+@{ ViewBag.Title = "ثبت سفارش"; ViewBag.NoIndex = true; }
+
+<div class="page-head"><h1>ثبت سفارش</h1></div>
+
+@using (Html.BeginForm("Place", "Checkout", FormMethod.Post, new { @class = "cart-wrap checkout" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="co-main">
+        @Html.ValidationSummary(true, "", new { @class = "err-note" })
+
+        <section class="co-box">
+            <h2>آدرس تحویل</h2>
+            @foreach (var a in Model.Addresses)
+            {
+                <label class="addr-opt">
+                    <input type="radio" name="addressId" value="@(a.Id)" @(Model.AddressId == a.Id ? "checked" : "") data-addr />
+                    <span><b>@(a.Receiver)</b> · @Fa.Digits(a.Phone)<br /><small class="muted">@(a.Province)، @(a.City)، @(a.Details)</small></span>
+                </label>
+            }
+            <label class="addr-opt">
+                <input type="radio" name="addressId" value="0" @(Model.AddressId == 0 ? "checked" : "") data-addr />
+                <span><b>آدرس جدید</b></span>
+            </label>
+
+            <div class="new-addr" id="newAddr">
+                <div class="f">@Html.LabelFor(m => m.NewAddress.Receiver)@Html.TextBoxFor(m => m.NewAddress.Receiver)@Html.ValidationMessageFor(m => m.NewAddress.Receiver, "", new { @class = "err-note" })</div>
+                <div class="f">@Html.LabelFor(m => m.NewAddress.Phone)@Html.TextBoxFor(m => m.NewAddress.Phone, new { dir = "ltr", inputmode = "tel" })@Html.ValidationMessageFor(m => m.NewAddress.Phone, "", new { @class = "err-note" })</div>
+                <div class="f2">
+                    <div class="f">@Html.LabelFor(m => m.NewAddress.Province)@Html.TextBoxFor(m => m.NewAddress.Province)@Html.ValidationMessageFor(m => m.NewAddress.Province, "", new { @class = "err-note" })</div>
+                    <div class="f">@Html.LabelFor(m => m.NewAddress.City)@Html.TextBoxFor(m => m.NewAddress.City)@Html.ValidationMessageFor(m => m.NewAddress.City, "", new { @class = "err-note" })</div>
+                </div>
+                <div class="f">@Html.LabelFor(m => m.NewAddress.PostalCode)@Html.TextBoxFor(m => m.NewAddress.PostalCode, new { dir = "ltr", inputmode = "numeric" })@Html.ValidationMessageFor(m => m.NewAddress.PostalCode, "", new { @class = "err-note" })</div>
+                <div class="f">@Html.LabelFor(m => m.NewAddress.Details)@Html.TextAreaFor(m => m.NewAddress.Details, new { rows = 3 })@Html.ValidationMessageFor(m => m.NewAddress.Details, "", new { @class = "err-note" })</div>
+            </div>
+        </section>
+
+        <section class="co-box">
+            <h2>اقلام سفارش</h2>
+            @foreach (var it in Model.Cart.Items)
+            {
+                <div class="co-line"><span>@(it.Title) × @Fa.Num(it.Quantity)</span><b>@Fa.Money(it.Total)</b></div>
+            }
+        </section>
+    </div>
+
+    <section class="summary">
+        <div class="sum-row"><span>جمع کالاها</span><b>@Fa.Money(Model.Subtotal) تومان</b></div>
+        <div class="sum-row"><span>هزینهٔ ارسال</span><b>@(Model.Shipping == 0 ? "رایگان" : Fa.Money(Model.Shipping) + " تومان")</b></div>
+        <div class="sum-row total"><span>مبلغ قابل پرداخت</span><b>@Fa.Money(Model.Total) تومان</b></div>
+        <button class="add-btn" type="submit">پرداخت آنلاین ‹</button>
+        <small class="muted">موجودی کالاها تا @Fa.Num(Ghaforv3.Helpers.Site.ReserveMinutes) دقیقه برای شما نگه داشته می‌شود.</small>
+    </section>
+}

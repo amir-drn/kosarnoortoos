@@ -1,0 +1,226 @@
+﻿@{
+    var me = Ghaforv3.Security.CurrentUser.Get(Context);
+    var ctrl = (string)ViewContext.RouteData.Values["controller"];
+    var badge = Html.Action("Badge", "Cart");
+
+}
+@using Ghaforv3.Helpers;
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-page="@ctrl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#14213d" />
+    <title>@ViewBag.Title - غفوریان</title>
+    @{
+        string desc = (ViewBag.Description as string) ?? "فروشگاه اینترنتی لوازم برقی و روشنایی داخلی و فضای باز؛ لامپ LED، کلید و پریز، سیم و کابل با ارسال به سراسر ایران.";
+        string og = Ghaforv3.Helpers.Site.Origin(Request);
+        string canonical = Ghaforv3.Helpers.Site.BaseUrl(Request) + Request.Url.AbsolutePath.Substring(Request.ApplicationPath == "/" ? 0 : Request.ApplicationPath.Length);
+        string ogImage = (ViewBag.OgImage as string) != null ? og + Url.Content((string)ViewBag.OgImage) : og + Url.Content("~/Content/Images/gh-logo.png");
+    }
+    <meta name="description" content="@desc" />
+    @if (ViewBag.NoIndex == true)
+    {
+        <meta name="robots" content="noindex, nofollow" />
+ }
+    else
+    {
+        <link rel="canonical" href="@canonical" />
+}
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:site_name" content="غفوریان" />
+    <meta property="og:title" content="@ViewBag.Title - غفوریان" />
+    <meta property="og:description" content="@desc" />
+    <meta property="og:image" content="@ogImage" />
+
+    <link href="@Asset.Url("~/Content/site.css")" rel="stylesheet" />
+    <link href="@Asset.Url("~/Content/auth.css")" rel="stylesheet" />
+    <link href="@Asset.Url("~/Content/desktop.css")" rel="stylesheet" media="(min-width:960px)" />
+    <script src="@Asset.Url("~/Scripts/boot.js")"></script>
+</head>
+<body data-auth="@(me != null ? "1" : "0")" data-login="@Url.Action("Login", "Account")" data-wish-url="@Url.Action("Toggle", "Wishlist")" data-wish-ids="@Url.Action("Ids", "Wishlist")" data-suggest="@Url.Action("Suggest", "Products")">
+    <a class="skip" href="#main">رفتن به محتوا</a>
+
+    @* آیکن‌های SVG که در همهٔ صفحه استفاده می‌شوند *@
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></symbol>
+        <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c1-4.5 4.5-6 8-6s7 1.5 8 6" /></symbol>
+        <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8z" /><path d="M9 8V6a3 3 0 016 0v2" /></symbol>
+        <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></symbol>
+        <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" /></symbol>
+        <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></symbol>
+        <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.2-9.4C1.6 7.700 3.700 4.500 7 4.500c2 0 3.600 1.100 5 3 1.400-1.900 3-3 5-3 3.300 0 5.400 3.200 4.200 6.600C19.500 15.900 12 20.500 12 20.500z" /></symbol>
+        <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" /></symbol>
+    </svg>
+
+    @* مقدمهٔ «روشن شدن لامپ»؛ فقط وقتی boot.js کلاس intro-on را بگذارد دیده می‌شود *@
+    <div class="intro" aria-hidden="true">
+        <span class="intro-glow"></span>
+        <svg class="intro-bulb" viewBox="0 0 64 80">
+            <path class="glass" d="M32 4C17 4 8 15 8 28c0 9 4 14 9 20 3 4 4 7 4 11h22c0-4 1-7 4-11 5-6 9-11 9-20C56 15 47 4 32 4z" />
+            <path class="fil" d="M25 59l4-16 3 6 3-6 4 16" />
+            <rect class="base" x="21" y="62" width="22" height="6" rx="2" />
+            <rect class="base" x="24" y="70" width="16" height="6" rx="3" />
+        </svg>
+        <span class="intro-name">غفوریان</span>
+    </div>
+    <div class="progress" id="progress" aria-hidden="true"></div>
+    <div hidden id="csrf">@Html.AntiForgeryToken()</div>
+
+    <div class="overlay" data-close-menu></div>
+    <aside class="drawer" aria-label="منو">
+        <div class="drawer-head">
+            <span>
+                <img class="icon-btn" src="~/Content/Images/gh-logo.png" alt="">
+                غفوریان
+            </span><button class="icon-btn" data-close-menu aria-label="بستن">✕</button>
+        </div>
+        <a href="@Url.Action("Index","Home")">صفحهٔ اصلی</a>
+        <a href="@Url.Action("Index","Products")">همهٔ محصولات</a>
+        <a href="@Url.Action("Index","Products",new{category="led"})">لامپ LED</a>
+        <a href="@Url.Action("Index","Products",new{category="switch-socket"})">کلید و پریز</a>
+        <a href="@Url.Action("Index","Products",new{category="cable"})">سیم و کابل</a>
+        @if (me == null)
+        {
+            <a href="@Url.Action("Login", "Account")">ورود</a>
+            <a href="@Url.Action("Register", "Account")">ثبت‌نام</a>
+        }
+        else
+        {
+            <a href="@Url.Action("Index", "Account")">حساب من (@(me.FullName))</a>
+            <a href="@Url.Action("Index", "Orders")">سفارش‌های من</a>
+            <a href="@Url.Action("Index", "Wishlist")">علاقه‌مندی‌ها</a>
+            if (me.Role >= 1)
+            { <a href="@Url.Action("Index", "Admin", new { area = "Admin" })">پنل مدیریت</a>}
+        }
+        <a href="@Url.Action("About", "Pages")">دربارهٔ ما</a>
+        <a href="@Url.Action("Contact", "Pages")">تماس با ما</a>
+        <a href="@Url.Action("Shipping", "Pages")">ارسال و بازگشت کالا</a>
+    </aside>
+    <div class="toast" id="toast" role="status" aria-live="polite" data-add-url="@Url.Action("Add","Cart")"></div>
+
+    <div class="topbar">حراج ویژه 7 تا 12% تخفیف روی کلیه اقلام</div>
+
+    @* ===== موبایل ===== *@
+    <div class="addr">
+        <div>ارسال به سراسر ایران؛ <b>تهران همان روز</b></div>
+        <div class="social">
+            @if (Ghaforv3.Helpers.Site.Telegram.Length > 0)
+            {<a href="@Ghaforv3.Helpers.Site.Telegram" rel="noopener" aria-label="تلگرام">✈</a>}
+            @if (Ghaforv3.Helpers.Site.Instagram.Length > 0)
+            {<a href="@Ghaforv3.Helpers.Site.Instagram" rel="noopener" aria-label="اینستاگرام">◎</a>}
+            @if (Ghaforv3.Helpers.Site.WhatsApp.Length > 0)
+            {<a href="@Ghaforv3.Helpers.Site.WhatsApp" rel="noopener" aria-label="واتساپ">✆</a>}
+            <a href="@Url.Action("Contact", "Pages")" aria-label="تماس">☎</a>
+        </div>
+    </div>
+
+    <header class="header">
+        <button class="icon-btn" id="menuBtn" aria-label="منو">☰</button>
+        <a class="brand" href="@Url.Action("Index","Home")"><span class="logo">⚡</span> غفوریان</a>
+        <a class="icon-btn" href="@Url.Action("Index", "Wishlist")" aria-label="علاقه‌مندی‌ها">♡</a>
+    </header>
+
+    <form class="search" role="search" action="@Url.Action("Index","Products")" method="get">
+        <input type="search" name="q" maxlength="100" value="@Request.QueryString["q"]" placeholder="جستجو در میان محصولات..." aria-label="جستجو" autocomplete="off" />
+        <button type="submit" aria-label="جستجو">🔍</button>
+    </form>
+
+    @* ===== دسکتاپ ===== *@
+    <header class="dk-only dk-head" id="dkHead">
+        <div class="dk-in">
+            <a class="dk-brand" href="@Url.Action("Index","Home")"><img src="~/Content/Images/gh-logo.png" alt="" /><span>غفوریان</span></a>
+
+            <nav class="dk-nav" aria-label="ناوبری اصلی">
+                <a class="@(ctrl == "Home" ? "on" : "")" href="@Url.Action("Index","Home")">خانه</a>
+                <div class="has-mega">
+                    <a class="@(ctrl == "Products" ? "on" : "")" href="@Url.Action("Index","Products")" aria-haspopup="true">فروشگاه <svg class="i sm"><use href="#i-chev" /></svg></a>
+                    <div class="mega">@Html.Action("Categories", "Home", new { mode = "mega" })</div>
+                </div>
+                @Html.Action("Categories", "Home", new { mode = "nav" })
+            </nav>
+
+            <form class="dk-search" role="search" action="@Url.Action("Index","Products")" method="get">
+                <svg class="i"><use href="#i-search" /></svg>
+                <input type="search" name="q" maxlength="100" value="@Request.QueryString["q"]" placeholder="جستجوی لامپ، کلید، کابل..." aria-label="جستجو" autocomplete="off" />
+            </form>
+
+            <div class="dk-tools">
+                @if (me == null)
+                {
+                    <a class="dk-link" href="@Url.Action("Login","Account")"><svg class="i"><use href="#i-user" /></svg><span>ورود / ثبت‌نام</span></a>
+                }
+                else
+                {
+                    <a class="dk-link" href="@Url.Action("Index","Account")"><svg class="i"><use href="#i-user" /></svg><span>@(me.FullName)</span></a>
+                    if (me.Role >= 1)
+                    { <a class="dk-link" href="@Url.Action("Index", "Admin", new { area = "Admin" })"><svg class="i"><use href="#i-bolt" /></svg><span>مدیریت</span></a>}
+                }
+                <a class="dk-link icon-only" href="@Url.Action("Index","Wishlist")" aria-label="علاقه‌مندی‌ها"><svg class="i"><use href="#i-heart" /></svg></a>
+                <a class="dk-cart cart-target" href="@Url.Action("Index","Cart")" aria-label="سبد خرید"><svg class="i"><use href="#i-bag" /></svg>@badge</a>
+            </div>
+        </div>
+    </header>
+
+    <main id="main" class="page">
+        @RenderBody()
+    </main>
+
+    <nav class="bottom-nav" aria-label="ناوبری اصلی">
+        <a class="@(ctrl == "Home" ? "on" : "")" href="@Url.Action("Index", "Home")"><i>🏠</i><span>خانه</span></a>
+        <a class="@(ctrl == "Products" ? "on" : "")" href="@Url.Action("Index", "Products")"><i>🛍️</i><span>فروشگاه</span></a>
+        <a class="cart-target @(ctrl == "Cart" ? "on" : "")" href="@Url.Action("Index", "Cart")"><i>🛒</i>@badge<span>سبد خرید</span></a>
+        <button type="button" data-open-menu><i>☰</i><span>منو</span></button>
+    </nav>
+
+    <footer class="footer">
+        <div class="foot-links"><a href="@Url.Action("About","Pages")">دربارهٔ ما</a><a href="@Url.Action("Shipping","Pages")">ارسال و بازگشت</a><a href="@Url.Action("Terms","Pages")">قوانین</a><a href="@Url.Action("Privacy","Pages")">حریم خصوصی</a></div>
+        © غفوریان - فروشگاه لوازم برقی و لامپ
+    </footer>
+
+    <footer class="dk-only dk-foot">
+        <svg class="foot-wire" viewBox="0 0 1200 24" preserveAspectRatio="none" aria-hidden="true">
+            <path class="base" d="M0 12H260l14-9h40l14 9H700l14 9h40l14-9H1200" />
+            <path class="spark" d="M0 12H260l14-9h40l14 9H700l14 9h40l14-9H1200" />
+        </svg>
+        <div class="dk-foot-in">
+            <div class="fcol brand-col">
+                <div class="dk-brand light"><img src="~/Content/Images/gh-logo.png" alt="" /><span>غفوریان</span></div>
+                <p>فروشگاه لوازم برقی و روشنایی داخلی و فضای باز؛ از لامپ و پریز تا سیم و کابل، با ارسال به سراسر ایران.</p>
+            </div>
+            <div class="fcol">
+                <h3>فروشگاه</h3>
+                <a href="@Url.Action("Index","Products")">همهٔ محصولات</a>
+                @Html.Action("Categories", "Home", new { mode = "footer" })
+            </div>
+            <div class="fcol">
+                <h3>حساب کاربری</h3>
+                @if (me == null)
+                {
+                    <a href="@Url.Action("Login","Account")">ورود</a>
+                    <a href="@Url.Action("Register","Account")">ثبت‌نام</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Index","Account")">حساب من</a>
+                    <a href="@Url.Action("Index","Orders")">سفارش‌های من</a>
+                    <a href="@Url.Action("Index","Wishlist")">علاقه‌مندی‌ها</a>
+                }
+                <a href="@Url.Action("Index","Cart")">سبد خرید</a>
+            </div>
+            <div class="fcol">
+                <h3>اطلاعات</h3>
+                <a href="@Url.Action("About","Pages")">دربارهٔ ما</a>
+                <a href="@Url.Action("Contact","Pages")">تماس با ما</a>
+                <a href="@Url.Action("Shipping","Pages")">ارسال و بازگشت کالا</a>
+                <a href="@Url.Action("Terms","Pages")">قوانین و مقررات</a>
+                <a href="@Url.Action("Privacy","Pages")">حریم خصوصی</a>
+            </div>
+        </div>
+        <div class="dk-foot-bar"><span>© غفوریان - فروشگاه لوازم برقی و لامپ</span></div>
+    </footer>
+
+    <script src="@Asset.Url("~/Scripts/site.js")"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+﻿@{ ViewBag.Title = "تماس با ما"; ViewBag.Description = "راه‌های ارتباط با پشتیبانی فروشگاه غفوریان"; }
+<article class="doc">
+    <h1>تماس با ما</h1>
+    <p>برای پیگیری سفارش، مشاوره در انتخاب کالا و پشتیبانی با ما در ارتباط باش.</p>
+    <ul class="contact-list">
+        @if (Ghaforv3.Helpers.Site.Phone.Length > 0) { <li>☎ <b>تلفن:</b> <a href="tel:@(Ghaforv3.Helpers.Site.Phone)" dir="ltr">@Fa.Digits(Ghaforv3.Helpers.Site.Phone)</a></li> }
+        @if (Ghaforv3.Helpers.Site.Email.Length > 0) { <li>✉ <b>ایمیل:</b> <a href="mailto:@(Ghaforv3.Helpers.Site.Email)" dir="ltr">@(Ghaforv3.Helpers.Site.Email)</a></li> }
+        @if (Ghaforv3.Helpers.Site.Address.Length > 0) { <li>📍 <b>نشانی:</b> @(Ghaforv3.Helpers.Site.Address)</li> }
+        <li>🕘 <b>ساعت پاسخ‌گویی:</b> @(Ghaforv3.Helpers.Site.Hours)</li>
+        @if (Ghaforv3.Helpers.Site.Telegram.Length > 0) { <li>✈ <a href="@(Ghaforv3.Helpers.Site.Telegram)" rel="noopener">تلگرام</a></li> }
+        @if (Ghaforv3.Helpers.Site.Instagram.Length > 0) { <li>◎ <a href="@(Ghaforv3.Helpers.Site.Instagram)" rel="noopener">اینستاگرام</a></li> }
+        @if (Ghaforv3.Helpers.Site.WhatsApp.Length > 0) { <li>✆ <a href="@(Ghaforv3.Helpers.Site.WhatsApp)" rel="noopener">واتساپ</a></li> }
+    </ul>
+    @if (Ghaforv3.Helpers.Site.Phone.Length == 0 && Ghaforv3.Helpers.Site.Email.Length == 0 && Ghaforv3.Helpers.Site.Address.Length == 0)
+    {
+        <p class="muted">اطلاعات تماس به‌زودی اضافه می‌شود.</p>
+    }
+</article>

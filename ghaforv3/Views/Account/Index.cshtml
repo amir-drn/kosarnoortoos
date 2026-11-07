@@ -1,0 +1,50 @@
+﻿@model Ghaforv3.Models.AccountVm
+@{ ViewBag.Title = "حساب من"; ViewBag.NoIndex = true; }
+@if (TempData["ok"] != null) { <div class="flash ok">@TempData["ok"]</div> }
+<div class="auth">
+    <h1>سلام @(Model.FullName) 👋</h1>
+    <p class="muted">موبایل: @Fa.Digits(Model.Mobile)@(string.IsNullOrEmpty(Model.Email) ? "" : " · " + Model.Email)</p>
+    @if (Model.IsStaff)
+    {
+        <a class="add-btn center" href="@Url.Action("Index", "Admin", new { area = "Admin" })">ورود به پنل مدیریت</a>
+    }
+    <nav class="acc-links">
+        <a href="@Url.Action("Index", "Orders")">🧾 سفارش‌های من</a>
+        <a href="@Url.Action("Index", "Wishlist")">♡ علاقه‌مندی‌ها</a>
+        <a href="@Url.Action("Index", "Addresses")">📍 آدرس‌ها</a>
+        <a href="@Url.Action("Profile", "Account")">✎ ویرایش پروفایل</a>
+        <a href="@Url.Action("Password", "Account")">🔑 تغییر رمز</a>
+    </nav>
+</div>
+
+<section class="sec">
+    <h2 class="sec-title">آخرین سفارش‌ها</h2>
+    @if (Model.Orders.Count == 0)
+    {
+        <p class="center muted">هنوز سفارشی ثبت نکرده‌ای.</p>
+    }
+    else
+    {
+        <div class="clist">
+            @foreach (var o in Model.Orders.Take(5))
+            {
+                <a class="citem ord" href="@Url.Action("Details", "Orders", new { id = o.Id })">
+                    <div class="cinfo">
+                        <b>سفارش #@Fa.Num(o.Id)</b>
+                        <small class="muted">@Fa.Stamp(o.CreatedAt)</small>
+                        <div class="crow"><span class="st st@(o.Status)">@Ghaforv3.Models.AdminLabels.Order(o.Status)</span><b>@Fa.Money(o.Total) تومان</b></div>
+                    </div>
+                </a>
+            }
+        </div>
+        <p class="center"><a class="muted" href="@Url.Action("Index", "Orders")">همهٔ سفارش‌ها ‹</a></p>
+    }
+</section>
+
+<div class="auth">
+    @using (Html.BeginForm("Logout", "Account", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <button class="add-btn ghost" type="submit">خروج از حساب</button>
+    }
+</div>

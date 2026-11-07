@@ -1,0 +1,35 @@
+﻿@model Ghaforv3.Models.PagedVm<Ghaforv3.Models.ProductRow>
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "محصولات"; }
+
+<form class="a-search" method="get" action="@Url.Action("Index", "AdminProducts")">
+    <input type="search" name="q" value="@(Model.Q)" placeholder="جستجو در عنوان یا Slug" />
+    <button type="submit">🔍</button>
+</form>
+<small class="muted">@(Model.Total) محصول</small>
+
+@foreach (var p in Model.Items)
+{
+    var img = Ghaforv3.Helpers.ImageHelper.Resolve(Server, p.ImageUrl, p.Slug);
+    <div class="a-item">
+        <div class="thumb">@if (img != null) { <img src="@Url.Content(img)" alt="" /> } else { <span>💡</span> }</div>
+        <div class="grow">
+            <b>@(p.Title)</b>
+            <small class="muted">@(p.CategoryTitle) · @(p.Price.ToString("N0")) تومان · موجودی @(p.Stock)</small>
+            <div>
+                @if (!p.IsActive) { <span class="a-badge off">غیرفعال</span> }
+                @if (p.Stock <= 5) { <span class="a-badge warn">موجودی کم</span> }
+            </div>
+            <div class="acts">
+                <a class="a-btn sm" href="@Url.Action("Edit", "AdminProducts", new { id = p.Id })">ویرایش</a>
+                <a class="a-btn sm ghost" href="@Url.Action("Images", "AdminProducts", new { id = p.Id })">گالری</a>
+                @using (Html.BeginForm("Delete", "AdminProducts", new { id = p.Id }, FormMethod.Post, new { data_confirm = "این محصول حذف شود؟" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <button class="a-btn sm danger" type="submit">حذف</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+@Html.Partial("_AdminPager", Model)
+<a class="a-fab" href="@Url.Action("Create", "AdminProducts")" aria-label="محصول جدید">＋</a>

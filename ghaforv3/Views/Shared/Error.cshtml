@@ -1,0 +1,31 @@
+﻿@{
+    Layout = null;
+    int code = ViewBag.Code is int ? (int)ViewBag.Code : 500;
+    string title = (ViewBag.ErrTitle as string) ?? "مشکلی پیش آمد";
+    string text = (ViewBag.ErrText as string) ?? "خطایی رخ داد. چند لحظه بعد دوباره امتحان کن.";
+}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>@title - غفوریان</title>
+    <link href="~/Content/site.css" rel="stylesheet" />
+    <link href="~/Content/desktop.css" rel="stylesheet" media="(min-width:960px)" />
+</head>
+<body class="err-page">
+    <main class="err-box">
+        <svg class="err-bulb" viewBox="0 0 64 80" aria-hidden="true">
+            <path class="glass" d="M32 4C17 4 8 15 8 28c0 9 4 14 9 20 3 4 4 7 4 11h22c0-4 1-7 4-11 5-6 9-11 9-20C56 15 47 4 32 4z" />
+            <path class="fil" d="M25 59l4-16 3 6 3-6 4 16" />
+            <rect class="base" x="21" y="62" width="22" height="6" rx="2" />
+            <rect class="base" x="24" y="70" width="16" height="6" rx="3" />
+        </svg>
+        <div class="err-code">@code</div>
+        <h1>@title</h1>
+        <p class="muted">@text</p>
+        <a class="btn" href="@Url.Content("~/")">بازگشت به صفحهٔ اصلی</a>
+    </main>
+</body>
+</html>

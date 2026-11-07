@@ -1,0 +1,17 @@
+﻿@model Ghaforv3.Models.RegisterVm
+@{ ViewBag.Title = "ثبت‌نام"; }
+<div class="auth">
+    <h1>ساخت حساب جدید</h1>
+    @using (Html.BeginForm("Register", "Account", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "auth-form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "auth-err" })
+        <div class="f">@Html.LabelFor(m => m.FullName)@Html.TextBoxFor(m => m.FullName, new { autocomplete = "name" })@Html.ValidationMessageFor(m => m.FullName, "", new { @class = "auth-err" })</div>
+        <div class="f">@Html.LabelFor(m => m.Mobile)@Html.TextBoxFor(m => m.Mobile, new { type = "tel", inputmode = "numeric", autocomplete = "username" })@Html.ValidationMessageFor(m => m.Mobile, "", new { @class = "auth-err" })</div>
+        <div class="f">@Html.LabelFor(m => m.Email)@Html.TextBoxFor(m => m.Email, new { type = "email", dir = "ltr" })@Html.ValidationMessageFor(m => m.Email, "", new { @class = "auth-err" })</div>
+        <div class="f">@Html.LabelFor(m => m.Password)@Html.PasswordFor(m => m.Password, new { autocomplete = "new-password" })@Html.ValidationMessageFor(m => m.Password, "", new { @class = "auth-err" })</div>
+        <div class="f">@Html.LabelFor(m => m.ConfirmPassword)@Html.PasswordFor(m => m.ConfirmPassword, new { autocomplete = "new-password" })@Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "auth-err" })</div>
+        <button class="add-btn" type="submit">ثبت‌نام</button>
+    }
+    <p class="alt">قبلاً ثبت‌نام کرده‌ای؟ <a href="@Url.Action("Login", "Account", new { returnUrl = ViewBag.ReturnUrl })">ورود</a></p>
+</div>

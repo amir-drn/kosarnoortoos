@@ -1,0 +1,25 @@
+﻿@model System.Collections.Generic.List<Ghaforv3.Models.CategoryRow>
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "دسته‌بندی‌ها"; }
+
+@foreach (var c in Model)
+{
+    <div class="a-item">
+        <div class="thumb">
+            @if (!string.IsNullOrEmpty(c.Icon) && (c.Icon.StartsWith("~/") || c.Icon.StartsWith("/"))) { <img src="@Url.Content(c.Icon)" alt="" /> } else { <span>@(c.Icon)</span> }
+        </div>
+        <div class="grow">
+            <b>@(c.Title)</b>
+            <small class="muted">@(c.Slug) · @(c.Count) محصول</small>
+            @if (!c.IsActive) { <span class="a-badge off">غیرفعال</span> }
+            <div class="acts">
+                <a class="a-btn sm" href="@Url.Action("Edit", "AdminCategories", new { id = c.Id })">ویرایش</a>
+                @using (Html.BeginForm("Delete", "AdminCategories", new { id = c.Id }, FormMethod.Post, new { data_confirm = "این دسته حذف شود؟" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <button class="a-btn sm danger" type="submit">حذف</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+<a class="a-fab" href="@Url.Action("Create", "AdminCategories")" aria-label="دستهٔ جدید">＋</a>

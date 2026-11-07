@@ -1,0 +1,44 @@
+# --- اطلاعات حساس ---
+web.config
+Web.*.config
+!Web.config.example
+*.pfx
+*.pubxml
+*.pubxml.user
+secrets.json
+.env
+
+# --- دیتابیس ---
+App_Data/
+*.mdf
+*.ldf
+*.ndf
+*.bak
+*.sql
+*.sqlite
+
+# --- فایل‌های آپلودی و تصاویر ---
+Content/Images/*
+Content/Uploads/*
+!Content/Images/.gitkeep
+!Content/Uploads/.gitkeep
+
+# --- Visual Studio ---
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+ipch/
+*.log
+
+# --- خروجی ساخت ---
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+TestResults/
+
+# --- NuGet ---
+packages/
+*.nupkg

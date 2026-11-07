@@ -1,0 +1,15 @@
+﻿/* ===== مرحلهٔ ۵: ورود، ثبت‌نام و حساب من ===== */
+.auth{margin:10px 16px;background:#fff;border:1px solid #eee;border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:12px;animation:fadeUp .5s ease both}
+.auth h1{font-size:1.2rem}
+.auth-form{display:flex;flex-direction:column;gap:12px}
+.auth .f{display:flex;flex-direction:column;gap:4px}
+.auth .f label{font-size:.85rem;font-weight:600}
+.auth input[type=text],.auth input[type=tel],.auth input[type=email],.auth input[type=password],.auth input:not([type]){font:inherit;border:1px solid #d1d5db;border-radius:14px;padding:13px;width:100%;background:#fff}
+.auth input:focus{outline:2px solid var(--brand);border-color:transparent}
+.auth .chk{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.auth-err,.field-validation-error,.validation-summary-errors{color:var(--red);font-size:.8rem}
+.auth .alt{text-align:center;font-size:.85rem;color:var(--muted)}
+.auth .alt a{color:var(--ink);font-weight:800}
+.auth .add-btn{width:100%}
+.add-btn.ghost{background:var(--gray-1);color:var(--ink)}
+.center{text-align:center}

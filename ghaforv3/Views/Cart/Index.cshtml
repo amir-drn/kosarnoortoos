@@ -1,0 +1,60 @@
+﻿@model Ghaforv3.Models.Cart
+@{ ViewBag.Title = "سبد خرید"; }
+
+<div class="page-head"><h1>سبد خرید</h1><small class="muted">@Fa.Num(Model.Count) کالا</small></div>
+
+@if (Model.Items.Count == 0)
+{
+    <div class="empty">
+        <div>🛒</div>
+        <p>سبد خرید شما خالی است.</p>
+        <a class="btn" href="@Url.Action("Index", "Products")">رفتن به فروشگاه</a>
+    </div>
+}
+else
+{
+    <div class="cart-wrap">
+    <div class="clist">
+        @foreach (var it in Model.Items)
+        {
+            var url = Url.Action("Details", "Products", new { slug = it.Slug });
+            <article class="citem">
+                <a class="cthumb" href="@url">
+                    @if (!string.IsNullOrEmpty(it.ImageUrl)) { <img src="@Url.Content(it.ImageUrl)" alt="@(it.Title)" /> } else { <span>💡</span> }
+                </a>
+                <div class="cinfo">
+                    <a class="ctitle" href="@url">@(it.Title)</a>
+                    <small class="muted">@Fa.Money(it.UnitPrice) تومان</small>
+                    <div class="crow">
+                        <form method="post" action="@Url.Action("Update", "Cart")" class="qty">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@(it.ProductId)" />
+                            <button type="submit" name="qty" value="@(it.Quantity + 1)" aria-label="افزایش">+</button>
+                            <span class="qn">@Fa.Num(it.Quantity)</span>
+                            <button type="submit" name="qty" value="@(it.Quantity - 1)" aria-label="کاهش">−</button>
+                        </form>
+                        <b>@Fa.Money(it.Total)</b>
+                        <form method="post" action="@Url.Action("Remove", "Cart")">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@(it.ProductId)" />
+                            <button type="submit" class="rm" aria-label="حذف">🗑</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+
+    <section class="summary">
+        @{ var ship = Ghaforv3.Helpers.Site.Shipping(Model.Total); }
+        <div class="sum-row"><span>جمع کالاها</span><b>@Fa.Money(Model.Total) تومان</b></div>
+        <div class="sum-row"><span>هزینهٔ ارسال</span><b>@(ship == 0 ? "رایگان" : Fa.Money(ship) + " تومان")</b></div>
+        <div class="sum-row total"><span>مبلغ قابل پرداخت</span><b>@Fa.Money(Model.Total + ship) تومان</b></div>
+        @if (Ghaforv3.Helpers.Site.FreeShippingFrom > 0 && Model.Total < Ghaforv3.Helpers.Site.FreeShippingFrom && Ghaforv3.Helpers.Site.ShippingFee > 0)
+        {
+            <small class="muted">با @Fa.Money(Ghaforv3.Helpers.Site.FreeShippingFrom - Model.Total) تومان خرید بیشتر، ارسال رایگان می‌شود.</small>
+        }
+        <a class="add-btn center" href="@Url.Action("Index", "Checkout")">ادامه و ثبت سفارش ‹</a>
+    </section>
+    </div>
+}

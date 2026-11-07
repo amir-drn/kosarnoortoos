@@ -1,0 +1,16 @@
+﻿@{ ViewBag.Title = "ارسال و بازگشت کالا"; ViewBag.Description = "شرایط ارسال، هزینهٔ حمل و بازگشت کالا در فروشگاه غفوریان"; }
+<article class="doc">
+    <h1>ارسال و بازگشت کالا</h1>
+    <h2>ارسال</h2>
+    <ul>
+        <li>ارسال به سراسر ایران انجام می‌شود؛ سفارش‌های تهران در همان روز ارسال می‌شوند.</li>
+        <li>هزینهٔ ارسال: @(Ghaforv3.Helpers.Site.ShippingFee == 0 ? "رایگان" : Fa.Money(Ghaforv3.Helpers.Site.ShippingFee) + " تومان")@(Ghaforv3.Helpers.Site.FreeShippingFrom > 0 && Ghaforv3.Helpers.Site.ShippingFee > 0 ? "؛ برای خرید بالای " + Fa.Money(Ghaforv3.Helpers.Site.FreeShippingFrom) + " تومان ارسال رایگان است." : ".")</li>
+        <li>بعد از ثبت سفارش، موجودی کالاها @Fa.Num(Ghaforv3.Helpers.Site.ReserveMinutes) دقیقه برای پرداخت نگه داشته می‌شود.</li>
+    </ul>
+    <h2>بازگشت کالا</h2>
+    <ul>
+        <li>در صورت معیوب بودن یا مغایرت کالا با سفارش، با پشتیبانی تماس بگیر تا کالا تعویض یا مبلغ بازگردانده شود.</li>
+        <li>کالای بازگشتی باید در بستهٔ اصلی و بدون استفاده باشد.</li>
+        <li>کالاهای برقی که نصب و استفاده شده‌اند، فقط در چارچوب گارانتی قابل رسیدگی هستند.</li>
+    </ul>
+</article>

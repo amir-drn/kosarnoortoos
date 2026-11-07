@@ -1,0 +1,56 @@
+﻿@{
+    var me = Ghaforv3.Security.CurrentUser.Get(Context);
+    var ctrl = (string)ViewContext.RouteData.Values["controller"];
+    bool isAdmin = me != null && me.Role >= 1;
+    Func<string, string> on = c => ctrl == c ? "on" : "";
+}
+@using Ghaforv3.Helpers;
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>@ViewBag.Title - مدیریت غفوریان</title>
+    <link href="@Asset.Url("~/Content/Admin/admin.css")" rel="stylesheet" />
+</head>
+<body class="admin">
+    <header class="a-top">
+        @if (isAdmin)
+        {<button type="button" id="aMenu" aria-label="منو">☰</button>}
+        <b>@ViewBag.Title</b>
+        <a href="@Url.Action("Index", "Home", new { area = "" })" aria-label="مشاهدهٔ سایت">🌐</a>
+    </header>
+
+    @if (isAdmin)
+    {
+        <div class="a-overlay" id="aOverlay"></div>
+        <aside class="a-drawer">
+            <div class="a-me"><b>@me.FullName</b><small>@Ghaforv3.Models.AdminLabels.Role(me.Role)</small></div>
+            <a class="@(ctrl == "Admin" ? "on" : "")" href="@Url.Action("Index", "Admin", new { area = "Admin" })">📊 داشبورد</a>
+            <a class="@on("AdminProducts")" href="@Url.Action("Index", "AdminProducts", new { area = "Admin" })">📦 محصولات</a>
+            <a class="@on("AdminCategories")" href="@Url.Action("Index", "AdminCategories", new { area = "Admin" })">🗂 دسته‌بندی‌ها</a>
+            <a class="@on("AdminBanners")" href="@Url.Action("Index", "AdminBanners", new { area = "Admin" })">🖼 بنرها</a>
+            <a class="@on("AdminBrands")" href="@Url.Action("Index", "AdminBrands", new { area = "Admin" })">🏷 برندها</a>
+            <a class="@on("AdminOrders")" href="@Url.Action("Index", "AdminOrders", new { area = "Admin" })">🧾 سفارش‌ها</a>
+            <a class="@on("AdminUsers")" href="@Url.Action("Index", "AdminUsers", new { area = "Admin" })">👥 @(me.Role == 2 ? "کاربران و مدیران" : "کاربران")</a>
+            <a href="@Url.Action("Index", "Home", new { area = "" })">🌐 مشاهدهٔ سایت</a>
+            @using (Html.BeginForm("Logout", "Account", new { area = "" }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <button type="submit" class="a-logout">🚪 خروج</button>
+            }
+        </aside>
+    }
+
+    <main class="a-main">
+        @if (TempData["ok"] != null)
+        {<div class="a-flash ok">@TempData["ok"]</div>}
+        @if (TempData["err"] != null)
+        {<div class="a-flash err">@TempData["err"]</div>}
+        @RenderBody()
+    </main>
+
+    <script src="@Asset.Url("~/Scripts/admin.js")"></script>
+</body>
+</html>

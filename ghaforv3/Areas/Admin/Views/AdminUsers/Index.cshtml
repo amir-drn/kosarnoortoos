@@ -1,0 +1,19 @@
+﻿@model Ghaforv3.Models.PagedVm<Ghaforv3.Models.UserRow>
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "کاربران"; }
+
+<form class="a-search" method="get" action="@Url.Action("Index", "AdminUsers")">
+    <input type="search" name="q" value="@(Model.Q)" placeholder="نام یا موبایل" />
+    <button type="submit">🔍</button>
+</form>
+<small class="muted">@(Model.Total) نفر</small>
+
+@foreach (var u in Model.Items)
+{
+    <a class="a-row" href="@Url.Action("Edit", "AdminUsers", new { id = u.Id })">
+        <span class="grow"><b>@(u.FullName)</b><br /><small class="muted">@(u.Mobile)</small></span>
+        <span class="a-badge @(u.Role == 2 ? "super" : "")">@Ghaforv3.Models.AdminLabels.Role(u.Role)</span>
+        @if (!u.IsActive) { <span class="a-badge off">مسدود</span> }
+    </a>
+}
+@Html.Partial("_AdminPager", Model)
+<a class="a-fab" href="@Url.Action("Create", "AdminUsers")" aria-label="کاربر جدید">＋</a>
