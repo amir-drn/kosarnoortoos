@@ -15,8 +15,9 @@ namespace Ghaforv3.Areas.Admin.Controllers
 
         public ActionResult Index(string q, int page = 1)
         {
-            var roles = Allowed;
-            IQueryable<User> query = db.Users.Where(u => roles.Contains(u.Role));
+            // نکته: Contains روی byte[] در EF ترجمه نمی‌شود (خطای ۵۰۰)؛ پس با شرط ساده فیلتر می‌کنیم
+            IQueryable<User> query = db.Users;
+            if (Me.Role != 2) query = query.Where(u => u.Role == 0);
             if (!string.IsNullOrWhiteSpace(q)) query = query.Where(u => u.FullName.Contains(q) || u.Mobile.Contains(q));
             int total = query.Count();
             int pages = (int)Math.Ceiling(total / (double)PageSize);
