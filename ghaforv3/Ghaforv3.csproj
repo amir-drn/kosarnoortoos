@@ -189,6 +189,7 @@
     <Compile Include="Helpers\Site.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".gitignore" />
     <Content Include="Content\Admin\admin.css" />
     <Content Include="Content\auth.css" />
     <Content Include="Content\Site.css" />
