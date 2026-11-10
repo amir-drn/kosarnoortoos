@@ -383,3 +383,36 @@ a.ord:hover{transform:translateY(-2px);box-shadow:0 10px 24px #0000001a}
 .contact-list{list-style:none;padding:0!important;gap:12px!important}
 .foot-links{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin-bottom:8px}
 .foot-links a{color:var(--muted)}
+
+/* =========================================================
+   گزینه‌های خرید: رنگ بدنه، رنگ نور، مشخصات و گارانتی
+   ========================================================= */
+.opt{border:0;padding:0;margin:16px 0 0;min-width:0}
+.opt legend{font-size:.9rem;font-weight:600;padding:0;margin-bottom:8px}
+.opt legend b{color:#b45309}
+.opt-list{display:flex;flex-wrap:wrap;gap:8px}
+.swatch{position:relative;cursor:pointer}
+.swatch input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.chip-o{display:flex;align-items:center;gap:8px;padding:7px 14px 7px 12px;border:2px solid var(--gray-2);border-radius:var(--r-pill);font-size:.85rem;background:#fff;transition:border-color .2s,background .2s,transform .25s var(--ease),box-shadow .25s}
+.swatch:hover .chip-o{transform:translateY(-2px)}
+.swatch input:checked + .chip-o{border-color:var(--brand);background:var(--soft);box-shadow:0 6px 16px #f59e0b33}
+.swatch input:focus-visible + .chip-o{outline:3px solid var(--brand);outline-offset:2px}
+.dot{display:inline-block;flex:none;width:18px;height:18px;border-radius:50%;background:var(--c,#e5e7eb);border:1px solid #00000026}
+.dot.light{border-color:#f59e0b66;box-shadow:0 0 0 2px #fff,0 0 12px var(--c,#fde68a)}
+.opt.need .opt-list{animation:shake .45s}
+.opt.need legend{color:var(--red)}
+@keyframes shake{20%,60%{transform:translateX(6px)}40%,80%{transform:translateX(-6px)}}
+
+.specs{display:flex;flex-wrap:wrap;gap:8px 28px;margin:16px 0 0;padding:12px 14px;background:#f8fafc;border-radius:var(--r-md);font-size:.88rem}
+.specs div{display:flex;gap:8px}
+.specs dt{color:var(--muted)}
+.specs dd{margin:0;font-weight:700}
+.warranty{margin-top:12px;padding:12px 14px;border-radius:var(--r-md);background:#ecfdf5;color:#065f46;font-size:.88rem}
+.warranty p{margin:4px 0 0;white-space:pre-line;line-height:1.9}
+
+.copts{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.78rem;color:var(--muted);margin:2px 0}
+.copt{display:inline-flex;align-items:center;gap:6px}
+.copt .dot{width:12px;height:12px}
+.opt-btn{background:var(--brand);color:var(--dark);border-radius:var(--r-sm);padding:9px 12px;font-size:.78rem;font-weight:700;white-space:nowrap;transition:transform .25s var(--ease),box-shadow .25s}
+.opt-btn:hover{transform:translateY(-2px);box-shadow:0 8px 18px #f59e0b66}
+.inv-opt{font-size:.75rem;color:#6b7280}

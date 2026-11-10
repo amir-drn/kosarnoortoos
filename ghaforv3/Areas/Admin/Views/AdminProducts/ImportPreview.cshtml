@@ -1,0 +1,56 @@
+﻿@model Ghaforv3.Helpers.ImportPlan
+@{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "پیش‌نمایش ورود محصولات"; const int Show = 300; }
+
+@if (Model.Fatal != null)
+{
+    <div class="a-flash err">@Model.Fatal</div>
+    <a class="a-btn" href="@Url.Action("Import", "AdminProducts")">بازگشت</a>
+}
+else
+{
+    <div class="a-card">
+        <p><b>فایل:</b> @Model.FileName</p>
+        <p>
+            <span class="a-badge ok">@Fa.Num(Model.Created) کالای جدید</span>
+            <span class="a-badge">@Fa.Num(Model.Updated) به‌روزرسانی</span>
+            <span class="a-badge off">@Fa.Num(Model.ErrorCount) ردیف دارای خطا</span>
+        </p>
+        <p class="muted">ردیف‌های دارای خطا وارد نمی‌شوند؛ بقیه بعد از تأیید ثبت می‌شوند. اگر ثبت با مشکل روبه‌رو شود، هیچ تغییری اعمال نمی‌شود.</p>
+        <div class="a-toolbar">
+            @if (Model.Created + Model.Updated > 0)
+            {
+                using (Html.BeginForm("ImportConfirm", "AdminProducts", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <button class="a-btn" type="submit">تأیید و ثبت @Fa.Num(Model.Created + Model.Updated) ردیف</button>
+                }
+            }
+            <a class="a-btn ghost" href="@Url.Action("Import", "AdminProducts")">انصراف</a>
+        </div>
+    </div>
+
+    <div class="a-scroll">
+        <table class="a-table">
+            <thead><tr><th>سطر</th><th>نام کالا</th><th>قیمت</th><th>موجودی</th><th>دسته</th><th>برند</th><th>نتیجه</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.Rows.Take(Show))
+                {
+                    <tr class="@(r.Action == "error" ? "err" : r.Action == "update" ? "upd" : "new")">
+                        <td>@Fa.Num(r.Line)</td>
+                        <td>@(r.Title)</td>
+                        <td>@(r.Price.HasValue ? Fa.Money(r.Price.Value) : "—")</td>
+                        <td>@(r.Stock.HasValue ? Fa.Num(r.Stock.Value) : "—")</td>
+                        <td>@(r.CategoryName ?? (r.CategoryId.HasValue ? "موجود" : "—"))@(r.NewCategory ? " (جدید)" : "")</td>
+                        <td>@(r.BrandName ?? (r.BrandId.HasValue ? "موجود" : "—"))@(r.NewBrand ? " (جدید)" : "")</td>
+                        <td>
+                            @(r.Action == "error" ? "❌ خطا" : r.Action == "update" ? "🔄 به‌روزرسانی" : "✅ جدید")
+                            @foreach (var e in r.Errors) { <div class="a-msg err">@e</div> }
+                            @foreach (var w in r.Warnings) { <div class="a-msg warn">⚠ @w</div> }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    if (Model.Rows.Count > Show) { <p class="muted">فقط @Fa.Num(Show) ردیف اول نمایش داده شد؛ بقیه هم پردازش شده‌اند.</p> }
+}

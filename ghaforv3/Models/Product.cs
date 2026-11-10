@@ -29,6 +29,11 @@ namespace Ghaforv3.Models
         public bool IsFlashSale { get; set; }
         public Nullable<System.DateTime> OfferEndsAt { get; set; }
         public System.DateTime CreatedAt { get; set; }
+        public string Code { get; set; }                 // کد محصول (کد داخلی/انبار)
+        public Nullable<int> CartonQty { get; set; }     // تعداد در کارتن
+        public string Warranty { get; set; }             // توضیحات گارانتی
+        public string BodyColors { get; set; }           // گزینه‌های رنگ بدنه (جداشده با «،»)
+        public string LightColors { get; set; }          // گزینه‌های رنگ نور (جداشده با «،»)
     
         public virtual Brand Brand { get; set; }
         public virtual Category Category { get; set; }

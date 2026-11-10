@@ -4,7 +4,6 @@
     bool isAdmin = me != null && me.Role >= 1;
     Func<string, string> on = c => ctrl == c ? "on" : "";
 }
-@using Ghaforv3.Helpers;
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -14,11 +13,9 @@
     <title>@ViewBag.Title - مدیریت غفوریان</title>
     <link href="@Asset.Url("~/Content/Admin/admin.css")" rel="stylesheet" />
 </head>
-
 <body class="admin">
     <header class="a-top">
-        @if (isAdmin)
-        {<button type="button" id="aMenu" aria-label="منو">☰</button>}
+        @if (isAdmin) { <button type="button" id="aMenu" aria-label="منو">☰</button> }
         <b>@ViewBag.Title</b>
         <a href="@Url.Action("Index", "Home", new { area = "" })" aria-label="مشاهدهٔ سایت">🌐</a>
     </header>
@@ -45,10 +42,8 @@
     }
 
     <main class="a-main">
-        @if (TempData["ok"] != null)
-        {<div class="a-flash ok">@TempData["ok"]</div>}
-        @if (TempData["err"] != null)
-        {<div class="a-flash err">@TempData["err"]</div>}
+        @if (TempData["ok"] != null) { <div class="a-flash ok">@TempData["ok"]</div> }
+        @if (TempData["err"] != null) { <div class="a-flash err">@TempData["err"]</div> }
         @RenderBody()
     </main>
 

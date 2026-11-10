@@ -13,7 +13,7 @@
             <h2>اقلام</h2>
             @foreach (var i in Model.OrderItems)
             {
-                <div class="co-line"><span>@(i.Title) × @Fa.Num(i.Quantity)</span><b>@Fa.Money(i.UnitPrice * i.Quantity)</b></div>
+                <div class="co-line"><span>@(i.Title) × @Fa.Num(i.Quantity)@if (!string.IsNullOrEmpty(i.BodyColor) || !string.IsNullOrEmpty(i.LightColor)) { <br /><small class="muted">@Ghaforv3.Models.ProductOptions.Describe(i.BodyColor, i.LightColor)</small> }</span><b>@Fa.Money(i.UnitPrice * i.Quantity)</b></div>
             }
         </section>
         <section class="co-box">
@@ -35,6 +35,10 @@
     <section class="summary">
         <div class="sum-row"><span>ثبت سفارش</span><b>@Fa.Stamp(Model.CreatedAt)</b></div>
         <div class="sum-row total"><span>مبلغ کل</span><b>@Fa.Money(Model.TotalAmount) تومان</b></div>
+        @if (Model.Status >= 1 && Model.Status <= 3)
+        {
+            <a class="add-btn center" target="_blank" rel="noopener" href="@Url.Action("Invoice", "Orders", new { id = Model.Id })">🧾 دریافت فاکتور (PDF)</a>
+        }
         @if (pending)
         {
             using (Html.BeginForm("Pay", "Orders", new { id = Model.Id }, FormMethod.Post))

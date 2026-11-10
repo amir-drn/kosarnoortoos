@@ -25,7 +25,11 @@
     <small class="muted">@(Model.Category != null ? Model.Category.Title : "")</small>
     <h3><a href="@url">@(Model.Title)</a></h3>
     <div class="card-bottom">
-        @if (Model.Stock > 0)
+        @if (Model.Stock > 0 && Model.HasOptions)
+        {
+            <a class="opt-btn" href="@url">انتخاب گزینه</a>
+        }
+        else if (Model.Stock > 0)
         {
             <button class="cart-btn" aria-label="افزودن به سبد" data-id="@(Model.Id)" data-title="@(Model.Title)">🛒</button>
         }

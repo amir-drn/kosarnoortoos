@@ -43,8 +43,14 @@ namespace Ghaforv3.Helpers
                     int qty = Math.Max(1, Math.Min(line.Quantity, CartStore.MaxPerLine));
                     if (!Reserve(db, p.Id, qty)) return "موجودی «" + p.Title + "» کافی نیست";
 
+                    // رنگ‌های انتخابی دوباره با گزینه‌های فعلی محصول سنجیده می‌شوند
+                    var bodies = p.BodyColorList; var lights = p.LightColorList;
+                    string body = bodies.Count > 0 ? line.BodyColor : null, light = lights.Count > 0 ? line.LightColor : null;
+                    if ((bodies.Count > 0 && (body == null || !bodies.Contains(body))) || (lights.Count > 0 && (light == null || !lights.Contains(light))))
+                        return "گزینه‌های رنگ «" + p.Title + "» دیگر معتبر نیست؛ آن را دوباره به سبد اضافه کن";
+
                     var title = p.Title.Length > 200 ? p.Title.Substring(0, 200) : p.Title;
-                    items.Add(new OrderItem { ProductId = p.Id, Title = title, UnitPrice = p.Price, Quantity = qty });
+                    items.Add(new OrderItem { ProductId = p.Id, Title = title, UnitPrice = p.Price, Quantity = qty, BodyColor = body, LightColor = light });
                     subtotal += p.Price * qty;
                 }
 

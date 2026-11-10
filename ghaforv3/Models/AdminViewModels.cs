@@ -81,7 +81,7 @@ namespace Ghaforv3.Models
         public DateTime CreatedAt { get; set; }
     }
 
-    public class OrderItemRow { public string Title { get; set; } public decimal UnitPrice { get; set; } public int Quantity { get; set; } }
+    public class OrderItemRow { public string Title { get; set; } public decimal UnitPrice { get; set; } public int Quantity { get; set; } public string BodyColor { get; set; } public string LightColor { get; set; } }
 
     public class OrderDetailsVm
     {
@@ -133,6 +133,11 @@ namespace Ghaforv3.Models
         public int Stock { get; set; }
         [StringLength(4000), Display(Name = "توضیحات")]
         public string Description { get; set; }
+        [StringLength(50), Display(Name = "کد محصول")] public string Code { get; set; }
+        [Range(1, 100000, ErrorMessage = "تعداد در کارتن معتبر نیست"), Display(Name = "تعداد در کارتن")] public int? CartonQty { get; set; }
+        [StringLength(1000), Display(Name = "توضیحات گارانتی")] public string Warranty { get; set; }
+        [StringLength(300), Display(Name = "رنگ‌های بدنه (با ویرگول جدا کن)")] public string BodyColors { get; set; }
+        [StringLength(300), Display(Name = "رنگ‌های نور (با ویرگول جدا کن)")] public string LightColors { get; set; }
         [Display(Name = "فعال")] public bool IsActive { get; set; }
         [Display(Name = "پیشنهاد امروز")] public bool IsDailyOffer { get; set; }
         [Display(Name = "حراج ویژه")] public bool IsFlashSale { get; set; }

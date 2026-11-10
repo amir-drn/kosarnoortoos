@@ -39,7 +39,7 @@
             <h2>اقلام سفارش</h2>
             @foreach (var it in Model.Cart.Items)
             {
-                <div class="co-line"><span>@(it.Title) × @Fa.Num(it.Quantity)</span><b>@Fa.Money(it.Total)</b></div>
+                <div class="co-line"><span>@(it.Title) × @Fa.Num(it.Quantity)@if (!string.IsNullOrEmpty(it.BodyColor) || !string.IsNullOrEmpty(it.LightColor)) { <br /><small class="muted">@Ghaforv3.Models.ProductOptions.Describe(it.BodyColor, it.LightColor)</small> }</span><b>@Fa.Money(it.Total)</b></div>
             }
         </section>
     </div>

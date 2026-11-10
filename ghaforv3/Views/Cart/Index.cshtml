@@ -24,11 +24,18 @@ else
                 </a>
                 <div class="cinfo">
                     <a class="ctitle" href="@url">@(it.Title)</a>
+                    @if (!string.IsNullOrEmpty(it.BodyColor) || !string.IsNullOrEmpty(it.LightColor))
+                    {
+                        <div class="copts">
+                            @if (!string.IsNullOrEmpty(it.BodyColor)) { <span class="copt"><i class="dot" style="--c:@Ghaforv3.Models.ProductOptions.Swatch(it.BodyColor, false)"></i>بدنه: @it.BodyColor</span> }
+                            @if (!string.IsNullOrEmpty(it.LightColor)) { <span class="copt"><i class="dot light" style="--c:@Ghaforv3.Models.ProductOptions.Swatch(it.LightColor, true)"></i>نور: @it.LightColor</span> }
+                        </div>
+                    }
                     <small class="muted">@Fa.Money(it.UnitPrice) تومان</small>
                     <div class="crow">
                         <form method="post" action="@Url.Action("Update", "Cart")" class="qty">
                             @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@(it.ProductId)" />
+                            <input type="hidden" name="line" value="@(it.LineId)" />
                             <button type="submit" name="qty" value="@(it.Quantity + 1)" aria-label="افزایش">+</button>
                             <span class="qn">@Fa.Num(it.Quantity)</span>
                             <button type="submit" name="qty" value="@(it.Quantity - 1)" aria-label="کاهش">−</button>
@@ -36,7 +43,7 @@ else
                         <b>@Fa.Money(it.Total)</b>
                         <form method="post" action="@Url.Action("Remove", "Cart")">
                             @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@(it.ProductId)" />
+                            <input type="hidden" name="line" value="@(it.LineId)" />
                             <button type="submit" class="rm" aria-label="حذف">🗑</button>
                         </form>
                     </div>

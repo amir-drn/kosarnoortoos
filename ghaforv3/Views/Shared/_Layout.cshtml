@@ -2,9 +2,7 @@
     var me = Ghaforv3.Security.CurrentUser.Get(Context);
     var ctrl = (string)ViewContext.RouteData.Values["controller"];
     var badge = Html.Action("Badge", "Cart");
-
 }
-@using Ghaforv3.Helpers;
 <!DOCTYPE html>
 <html lang="fa" dir="rtl" data-page="@ctrl">
 <head>
@@ -19,14 +17,8 @@
         string ogImage = (ViewBag.OgImage as string) != null ? og + Url.Content((string)ViewBag.OgImage) : og + Url.Content("~/Content/Images/gh-logo.png");
     }
     <meta name="description" content="@desc" />
-    @if (ViewBag.NoIndex == true)
-    {
-        <meta name="robots" content="noindex, nofollow" />
- }
-    else
-    {
-        <link rel="canonical" href="@canonical" />
-}
+    @if (ViewBag.NoIndex == true) { <meta name="robots" content="noindex, nofollow" /> }
+    else { <link rel="canonical" href="@canonical" /> }
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="fa_IR" />
     <meta property="og:site_name" content="غفوریان" />
@@ -70,12 +62,9 @@
 
     <div class="overlay" data-close-menu></div>
     <aside class="drawer" aria-label="منو">
-        <div class="drawer-head">
-            <span>
-                <img class="icon-btn" src="~/Content/Images/gh-logo.png" alt="">
-                غفوریان
-            </span><button class="icon-btn" data-close-menu aria-label="بستن">✕</button>
-        </div>
+        <div class="drawer-head"><span>
+            <img class="icon-btn" src="~/Content/Images/gh-logo.png" alt="">
+            غفوریان</span><button class="icon-btn" data-close-menu aria-label="بستن">✕</button></div>
         <a href="@Url.Action("Index","Home")">صفحهٔ اصلی</a>
         <a href="@Url.Action("Index","Products")">همهٔ محصولات</a>
         <a href="@Url.Action("Index","Products",new{category="led"})">لامپ LED</a>
@@ -91,8 +80,7 @@
             <a href="@Url.Action("Index", "Account")">حساب من (@(me.FullName))</a>
             <a href="@Url.Action("Index", "Orders")">سفارش‌های من</a>
             <a href="@Url.Action("Index", "Wishlist")">علاقه‌مندی‌ها</a>
-            if (me.Role >= 1)
-            { <a href="@Url.Action("Index", "Admin", new { area = "Admin" })">پنل مدیریت</a>}
+            if (me.Role >= 1) { <a href="@Url.Action("Index", "Admin", new { area = "Admin" })">پنل مدیریت</a> }
         }
         <a href="@Url.Action("About", "Pages")">دربارهٔ ما</a>
         <a href="@Url.Action("Contact", "Pages")">تماس با ما</a>
@@ -100,18 +88,15 @@
     </aside>
     <div class="toast" id="toast" role="status" aria-live="polite" data-add-url="@Url.Action("Add","Cart")"></div>
 
-    <div class="topbar">حراج ویژه 7 تا 12% تخفیف روی کلیه اقلام</div>
+    <div class="topbar">حراج ویژه شب یلدا · تا ۱۱٪ تخفیف روی لامپ و پریز</div>
 
     @* ===== موبایل ===== *@
     <div class="addr">
         <div>ارسال به سراسر ایران؛ <b>تهران همان روز</b></div>
         <div class="social">
-            @if (Ghaforv3.Helpers.Site.Telegram.Length > 0)
-            {<a href="@Ghaforv3.Helpers.Site.Telegram" rel="noopener" aria-label="تلگرام">✈</a>}
-            @if (Ghaforv3.Helpers.Site.Instagram.Length > 0)
-            {<a href="@Ghaforv3.Helpers.Site.Instagram" rel="noopener" aria-label="اینستاگرام">◎</a>}
-            @if (Ghaforv3.Helpers.Site.WhatsApp.Length > 0)
-            {<a href="@Ghaforv3.Helpers.Site.WhatsApp" rel="noopener" aria-label="واتساپ">✆</a>}
+            @if (Ghaforv3.Helpers.Site.Telegram.Length > 0) { <a href="@Ghaforv3.Helpers.Site.Telegram" rel="noopener" aria-label="تلگرام">✈</a> }
+            @if (Ghaforv3.Helpers.Site.Instagram.Length > 0) { <a href="@Ghaforv3.Helpers.Site.Instagram" rel="noopener" aria-label="اینستاگرام">◎</a> }
+            @if (Ghaforv3.Helpers.Site.WhatsApp.Length > 0) { <a href="@Ghaforv3.Helpers.Site.WhatsApp" rel="noopener" aria-label="واتساپ">✆</a> }
             <a href="@Url.Action("Contact", "Pages")" aria-label="تماس">☎</a>
         </div>
     </div>
@@ -154,8 +139,7 @@
                 else
                 {
                     <a class="dk-link" href="@Url.Action("Index","Account")"><svg class="i"><use href="#i-user" /></svg><span>@(me.FullName)</span></a>
-                    if (me.Role >= 1)
-                    { <a class="dk-link" href="@Url.Action("Index", "Admin", new { area = "Admin" })"><svg class="i"><use href="#i-bolt" /></svg><span>مدیریت</span></a>}
+                    if (me.Role >= 1) { <a class="dk-link" href="@Url.Action("Index", "Admin", new { area = "Admin" })"><svg class="i"><use href="#i-bolt" /></svg><span>مدیریت</span></a> }
                 }
                 <a class="dk-link icon-only" href="@Url.Action("Index","Wishlist")" aria-label="علاقه‌مندی‌ها"><svg class="i"><use href="#i-heart" /></svg></a>
                 <a class="dk-cart cart-target" href="@Url.Action("Index","Cart")" aria-label="سبد خرید"><svg class="i"><use href="#i-bag" /></svg>@badge</a>

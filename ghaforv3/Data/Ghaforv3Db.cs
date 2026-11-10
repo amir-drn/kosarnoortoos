@@ -78,6 +78,11 @@ namespace Ghaforv3.Models
             mb.Entity<Product>().Property(x => x.OldPrice).HasPrecision(18, 0);
             mb.Entity<Product>().Property(x => x.Unit).IsRequired().HasMaxLength(20);
             mb.Entity<Product>().Property(x => x.ImageUrl).HasMaxLength(300);
+            mb.Entity<Product>().Property(x => x.Code).HasMaxLength(50)
+                .HasColumnAnnotation("Index", new IndexAnnotation(new IndexAttribute("IX_Products_Code")));
+            mb.Entity<Product>().Property(x => x.Warranty).HasMaxLength(1000);
+            mb.Entity<Product>().Property(x => x.BodyColors).HasMaxLength(300);
+            mb.Entity<Product>().Property(x => x.LightColors).HasMaxLength(300);
             mb.Entity<Product>().Property(x => x.CreatedAt).HasColumnType("datetime2");
             mb.Entity<Product>().Property(x => x.OfferEndsAt).HasColumnType("datetime2");
             mb.Entity<Product>().HasRequired(p => p.Category).WithMany(c => c.Products).HasForeignKey(p => p.CategoryId).WillCascadeOnDelete(false);
@@ -96,6 +101,8 @@ namespace Ghaforv3.Models
             mb.Entity<OrderItem>().ToTable("OrderItems");
             mb.Entity<OrderItem>().Property(x => x.Title).IsRequired().HasMaxLength(200);
             mb.Entity<OrderItem>().Property(x => x.UnitPrice).HasPrecision(18, 0);
+            mb.Entity<OrderItem>().Property(x => x.BodyColor).HasMaxLength(50);
+            mb.Entity<OrderItem>().Property(x => x.LightColor).HasMaxLength(50);
             mb.Entity<OrderItem>().HasRequired(i => i.Order).WithMany(o => o.OrderItems).HasForeignKey(i => i.OrderId).WillCascadeOnDelete(true);
             mb.Entity<OrderItem>().HasRequired(i => i.Product).WithMany(p => p.OrderItems).HasForeignKey(i => i.ProductId).WillCascadeOnDelete(false);
 
@@ -141,7 +148,7 @@ namespace Ghaforv3.Models
     // اگر دیتابیس نبود می‌سازد، چند محدودیت درستی داده اضافه می‌کند و نمونه‌داده می‌ریزد.
     // نکته: بعد از ساخت، اگر کلاس‌های مدل را عوض کردی باید Migrations فعال کنی
     // (Package Manager Console:  Enable-Migrations  سپس  Add-Migration Name  و  Update-Database).
-    public class Ghaforv3Initializer : CreateDatabaseIfNotExists<Ghaforv3Db>
+    public class FreshDatabaseInitializer : CreateDatabaseIfNotExists<Ghaforv3Db>
     {
         protected override void Seed(Ghaforv3Db db)
         {
@@ -181,7 +188,63 @@ namespace Ghaforv3.Models
                 p(cb, "سیم افشان ۳×۲٫۵ (۱۰۰ متر)", "cable-3x2-5", "سیم افشان مسی نیم‌پیچ.", 4200000, null, 15, "حلقه", false, false),
                 p(cb, "کابل شبکه Cat6 (۳۰۵ متر)", "cat6-305", "کابل شبکه با روکش PVC.", 5600000, 6100000, 8, "حلقه", true, false)
             });
+
+            // مشخصات نمونه: کد، تعداد در کارتن، گارانتی و گزینه‌های رنگ
+            int n = 1;
+            foreach (var x in db.Products.Local)
+            {
+                x.Code = "GH-" + (n++).ToString("000");
+                x.Warranty = "گارانتی ۱۲ ماهه تعویض در صورت خرابی (بدون سوءاستفاده)";
+                switch (x.Slug)
+                {
+                    case "led-10w-e27":
+                        x.CartonQty = 100; x.LightColors = "آفتابی (۲۷۰۰K)،مهتابی (۶۵۰۰K)،یخی (۸۰۰۰K)"; break;
+                    case "panel-24w":
+                        x.CartonQty = 10; x.BodyColors = "سفید،مشکی"; x.LightColors = "آفتابی (۳۰۰۰K)،طبیعی (۴۰۰۰K)،مهتابی (۶۵۰۰K)"; break;
+                    case "socket-earth":
+                    case "switch-single":
+                        x.CartonQty = 50; x.BodyColors = "سفید،کرم،مشکی،طلایی"; break;
+                    case "cable-3x2-5":
+                    case "cat6-305":
+                        x.CartonQty = 1; break;
+                }
+            }
             db.SaveChanges();
+        }
+    }
+
+    // ساخت یا به‌روزرسانی خودکار دیتابیس:
+    //  • دیتابیس/جدول‌ها نبودند: از روی مدل ساخته می‌شود و نمونه‌داده می‌ریزد.
+    //  • دیتابیس بود: ستون‌های جدیدی که نسخه‌های بعدی اضافه کرده‌اند (در صورت نبودن) به جدول‌ها اضافه می‌شود؛
+    //    بدون پاک شدن هیچ داده‌ای و بدون نیاز به Migrations. (هر ALTER فقط یک بار اثر می‌کند.)
+    public class Ghaforv3Initializer : IDatabaseInitializer<Ghaforv3Db>
+    {
+        public void InitializeDatabase(Ghaforv3Db db)
+        {
+            if (db.Database.Exists() && TableExists(db, "Products")) { Upgrade(db); return; }
+            new FreshDatabaseInitializer().InitializeDatabase(db);
+        }
+
+        private static bool TableExists(Ghaforv3Db db, string table)
+        {
+            return db.Database.SqlQuery<int>("SELECT CASE WHEN OBJECT_ID(N'dbo." + table + "', N'U') IS NULL THEN 0 ELSE 1 END").First() == 1;
+        }
+
+        private static void Upgrade(Ghaforv3Db db)
+        {
+            var steps = new[]
+            {
+                // نسخهٔ ۲: مشخصات محصول
+                "IF COL_LENGTH('dbo.Products','Code') IS NULL ALTER TABLE dbo.Products ADD Code nvarchar(50) NULL",
+                "IF COL_LENGTH('dbo.Products','CartonQty') IS NULL ALTER TABLE dbo.Products ADD CartonQty int NULL",
+                "IF COL_LENGTH('dbo.Products','Warranty') IS NULL ALTER TABLE dbo.Products ADD Warranty nvarchar(1000) NULL",
+                "IF COL_LENGTH('dbo.Products','BodyColors') IS NULL ALTER TABLE dbo.Products ADD BodyColors nvarchar(300) NULL",
+                "IF COL_LENGTH('dbo.Products','LightColors') IS NULL ALTER TABLE dbo.Products ADD LightColors nvarchar(300) NULL",
+                "IF COL_LENGTH('dbo.OrderItems','BodyColor') IS NULL ALTER TABLE dbo.OrderItems ADD BodyColor nvarchar(50) NULL",
+                "IF COL_LENGTH('dbo.OrderItems','LightColor') IS NULL ALTER TABLE dbo.OrderItems ADD LightColor nvarchar(50) NULL",
+                "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Products_Code' AND object_id = OBJECT_ID(N'dbo.Products')) CREATE INDEX IX_Products_Code ON dbo.Products (Code)"
+            };
+            foreach (var sql in steps) db.Database.ExecuteSqlCommand(sql);
         }
     }
 }

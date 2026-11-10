@@ -69,3 +69,13 @@ body.admin .a-btn:focus-visible,body.admin a:focus-visible,body.admin button:foc
 .a-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin:12px 0 22px}
 .a-gimg{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:8px}
 .a-gimg img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px}
+
+/* ورود از اکسل */
+.a-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.a-steps{padding-right:20px;display:flex;flex-direction:column;gap:6px;line-height:1.9}
+.a-scroll{overflow-x:auto;background:#fff;border:1px solid #e5e7eb;border-radius:14px}
+.a-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.a-table th,.a-table td{padding:9px 10px;border-bottom:1px solid #f1f5f9;text-align:right;vertical-align:top}
+.a-table th{background:#f8fafc;font-weight:700;white-space:nowrap}
+.a-table tr.err{background:#fef2f2}.a-table tr.upd{background:#f0f9ff}.a-table tr.new{background:#f0fdf4}
+.a-msg{font-size:.78rem;margin-top:3px}.a-msg.err{color:#b91c1c}.a-msg.warn{color:#92400e}

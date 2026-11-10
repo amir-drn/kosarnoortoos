@@ -31,7 +31,7 @@ namespace Ghaforv3.Controllers
             {
                 q = q.Trim();
                 if (q.Length > 100) q = q.Substring(0, 100);
-                query = query.Where(p => p.Title.Contains(q));
+                query = query.Where(p => p.Title.Contains(q) || p.Code.Contains(q));
             }
 
             if (!string.IsNullOrWhiteSpace(brand))
@@ -76,7 +76,7 @@ namespace Ghaforv3.Controllers
         {
             q = (q ?? "").Trim();
             if (q.Length < 2 || q.Length > 60) return Json(new { items = new object[0] }, JsonRequestBehavior.AllowGet);
-            var rows = db.Products.Where(p => p.IsActive && p.Title.Contains(q)).OrderBy(p => p.Title).Take(6)
+            var rows = db.Products.Where(p => p.IsActive && (p.Title.Contains(q) || p.Code.Contains(q))).OrderBy(p => p.Title).Take(6)
                 .Select(p => new { p.Title, p.Slug, p.Price, p.ImageUrl }).ToList();
             var items = rows.Select(p => new
             {

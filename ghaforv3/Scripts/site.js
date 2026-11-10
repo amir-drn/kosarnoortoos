@@ -199,10 +199,26 @@
         var card = b.closest('.card');
         var img = card ? card.querySelector('.card-img img') : d.querySelector('.slide img');
 
+        // گزینه‌های رنگ بدنه / رنگ نور (فقط صفحهٔ جزئیات): انتخاب هر گروه الزامی است
+        var body = '', light = '';
+        if (b.hasAttribute('data-add')) {
+            var groups = d.querySelectorAll('.opt');
+            for (var gi = 0; gi < groups.length; gi++) {
+                var checked = groups[gi].querySelector('input:checked');
+                if (!checked) {
+                    groups[gi].classList.remove('need'); void groups[gi].offsetWidth; groups[gi].classList.add('need');
+                    say(groups[gi].getAttribute('data-opt') === 'body' ? 'رنگ بدنه را انتخاب کن' : 'رنگ نور را انتخاب کن');
+                    if (groups[gi].scrollIntoView) groups[gi].scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
+                    return;
+                }
+                if (groups[gi].getAttribute('data-opt') === 'body') body = checked.value; else light = checked.value;
+            }
+        }
+
         fetch(toast.getAttribute('data-add-url'), {
             method: 'POST', credentials: 'same-origin',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-Token': csrf() },
-            body: 'id=' + encodeURIComponent(b.getAttribute('data-id')) + '&qty=' + encodeURIComponent(qty)
+            body: 'id=' + encodeURIComponent(b.getAttribute('data-id')) + '&qty=' + encodeURIComponent(qty) + '&body=' + encodeURIComponent(body) + '&light=' + encodeURIComponent(light)
         }).then(function (r) { return r.json(); })
           .then(function (res) {
               say(res.message);
@@ -311,6 +327,17 @@
         if (plus) plus.addEventListener('click', function () { qty.value = Math.min(max, (parseInt(qty.value, 10) || 1) + 1); });
         if (minus) minus.addEventListener('click', function () { qty.value = Math.max(1, (parseInt(qty.value, 10) || 1) - 1); });
     }
+
+    // ---------- انتخاب رنگ: متن کنار عنوان گروه به‌روز می‌شود ----------
+    d.addEventListener('change', function (e) {
+        var inp = e.target;
+        if (!inp || !inp.closest || inp.type !== 'radio') return;
+        var group = inp.closest('.opt');
+        if (!group) return;
+        var label = group.querySelector('[data-opt-label]');
+        if (label) label.textContent = inp.value;
+        group.classList.remove('need');
+    });
 
     // ---------- علاقه‌مندی‌ها (قلب) ----------
     var bd = d.body;

@@ -9,7 +9,7 @@
     var schema = new System.Collections.Generic.Dictionary<string, object>
     {
         { "@context", "https://schema.org" }, { "@type", "Product" }, { "name", p.Title },
-        { "description", ViewBag.Description }, { "sku", p.Id.ToString() },
+        { "description", ViewBag.Description }, { "sku", string.IsNullOrWhiteSpace(p.Code) ? p.Id.ToString() : p.Code },
         { "offers", new System.Collections.Generic.Dictionary<string, object> {
             { "@type", "Offer" }, { "priceCurrency", "IRT" }, { "price", decimal.Round(p.Price, 0).ToString(System.Globalization.CultureInfo.InvariantCulture) },
             { "availability", p.Stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock" } } }
@@ -72,6 +72,35 @@
         <span class="stock ok">موجود در انبار</span>
     }
 
+    @if (p.Stock > 0)
+    {
+        var bodyList = p.BodyColorList; var lightList = p.LightColorList;
+        if (bodyList.Count > 0)
+        {
+            <fieldset class="opt" data-opt="body">
+                <legend>رنگ بدنه: <b data-opt-label>@(bodyList.Count == 1 ? bodyList[0] : "انتخاب کن")</b></legend>
+                <div class="opt-list">
+                    @foreach (var c in bodyList)
+                    {
+                        <label class="swatch"><input type="radio" name="bodyColor" value="@c" @(bodyList.Count == 1 ? "checked" : "") /><span class="chip-o"><span class="dot" style="--c:@Ghaforv3.Models.ProductOptions.Swatch(c, false)"></span><span class="nm">@c</span></span></label>
+                    }
+                </div>
+            </fieldset>
+        }
+        if (lightList.Count > 0)
+        {
+            <fieldset class="opt" data-opt="light">
+                <legend>رنگ نور: <b data-opt-label>@(lightList.Count == 1 ? lightList[0] : "انتخاب کن")</b></legend>
+                <div class="opt-list">
+                    @foreach (var c in lightList)
+                    {
+                        <label class="swatch"><input type="radio" name="lightColor" value="@c" @(lightList.Count == 1 ? "checked" : "") /><span class="chip-o"><span class="dot light" style="--c:@Ghaforv3.Models.ProductOptions.Swatch(c, true)"></span><span class="nm">@c</span></span></label>
+                    }
+                </div>
+            </fieldset>
+        }
+    }
+
     <div class="buy">
         <div class="qty">
             <button type="button" id="qtyPlus" aria-label="افزایش">+</button>
@@ -80,6 +109,18 @@
         </div>
         <button class="add-btn" type="button" data-add data-id="@(p.Id)" data-title="@(p.Title)" @(p.Stock <= 0 ? "disabled" : "")>افزودن به سبد خرید</button>
     </div>
+
+    @if (!string.IsNullOrWhiteSpace(p.Code) || p.CartonQty.HasValue)
+    {
+        <dl class="specs">
+            @if (!string.IsNullOrWhiteSpace(p.Code)) { <div><dt>کد محصول</dt><dd dir="ltr">@p.Code</dd></div> }
+            @if (p.CartonQty.HasValue) { <div><dt>تعداد در کارتن</dt><dd>@Fa.Num(p.CartonQty.Value) عدد</dd></div> }
+        </dl>
+    }
+    @if (!string.IsNullOrWhiteSpace(p.Warranty))
+    {
+        <div class="warranty"><b>🛡 گارانتی</b><p>@p.Warranty</p></div>
+    }
 </section>
 
 </div>

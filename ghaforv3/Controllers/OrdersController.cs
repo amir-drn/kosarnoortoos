@@ -34,6 +34,16 @@ namespace Ghaforv3.Controllers
             return View(o);
         }
 
+        // فاکتور فقط برای صاحب سفارش و فقط برای سفارش لغونشده
+        public ActionResult Invoice(int id)
+        {
+            var me = Me;
+            var o = db.Orders.Include(x => x.User).Include(x => x.Address).Include(x => x.OrderItems).Include(x => x.Payments)
+                .FirstOrDefault(x => x.Id == id && x.UserId == me.Id);
+            if (o == null || o.Status == OrderService.Canceled) return HttpNotFound();
+            return View("~/Views/Shared/_Invoice.cshtml", o);
+        }
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Pay(int id)
         {

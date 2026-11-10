@@ -1,0 +1,99 @@
+﻿@model Ghaforv3.Models.Order
+@{
+    Layout = null;
+    var items = Model.OrderItems.OrderBy(i => i.Id).ToList();
+    decimal subtotal = items.Sum(i => i.UnitPrice * i.Quantity);
+    decimal shipping = Model.TotalAmount - subtotal;
+    if (shipping < 0) { shipping = 0; }
+    var paid = Model.Payments.Where(p => p.IsSuccess).OrderBy(p => p.CreatedAt).FirstOrDefault();
+    string title = Model.Status == 0 ? "پیش‌فاکتور" : "فاکتور فروش";
+    string backUrl = Url.Action("Details", "Orders", new { id = Model.Id });
+}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>@title شمارهٔ @Fa.Num(Model.Id) - غفوریان</title>
+    <link href="@Asset.Url("~/Content/invoice.css")" rel="stylesheet" />
+</head>
+<body>
+    <div class="inv-bar no-print">
+        <button type="button" data-print>🖨 چاپ / ذخیره PDF</button>
+        <a class="ghost" href="@backUrl" data-back>بازگشت</a>
+    </div>
+
+    <main class="inv">
+        <header class="inv-head">
+            <div class="inv-brand"><img src="@Url.Content("~/Content/Images/gh-logo.png")" alt="" /><span>غفوریان</span></div>
+            <div class="inv-meta">
+                <h1>@title</h1>
+                <div><span>شمارهٔ فاکتور:</span><b>@Fa.Num(Model.Id)</b></div>
+                <div><span>تاریخ:</span><b>@Fa.Date(Model.CreatedAt)</b></div>
+            </div>
+        </header>
+
+        <section class="inv-parties">
+            <div class="inv-box">
+                <h2>فروشنده</h2>
+                <p><b>فروشگاه غفوریان</b> — لوازم برقی و روشنایی</p>
+                @if (Ghaforv3.Helpers.Site.Address.Length > 0) { <p>نشانی: @Ghaforv3.Helpers.Site.Address</p> }
+                @if (Ghaforv3.Helpers.Site.Phone.Length > 0) { <p>تلفن: @Fa.Digits(Ghaforv3.Helpers.Site.Phone)</p> }
+                @if (Ghaforv3.Helpers.Site.Email.Length > 0) { <p>ایمیل: @Ghaforv3.Helpers.Site.Email</p> }
+            </div>
+            <div class="inv-box">
+                <h2>خریدار</h2>
+                <p><b>@Model.Address.Receiver</b> · @Fa.Digits(Model.Address.Phone)</p>
+                <p>@Model.Address.Province، @Model.Address.City، @Model.Address.Details</p>
+                @if (!string.IsNullOrEmpty(Model.Address.PostalCode)) { <p>کد پستی: @Fa.Digits(Model.Address.PostalCode)</p> }
+                @if (Model.User != null && Model.User.FullName != Model.Address.Receiver) { <p class="muted">ثبت‌کننده: @Model.User.FullName</p> }
+            </div>
+        </section>
+
+        <table class="inv-items">
+            <thead>
+                <tr><th class="c">ردیف</th><th>شرح کالا</th><th class="c">تعداد</th><th class="num">قیمت واحد (تومان)</th><th class="num">قیمت کل (تومان)</th></tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < items.Count; i++)
+                {
+                    <tr>
+                        <td class="c">@Fa.Num(i + 1)</td>
+                        <td>@(items[i].Title)@if (!string.IsNullOrEmpty(items[i].BodyColor) || !string.IsNullOrEmpty(items[i].LightColor)) { <div class="inv-opt">@Ghaforv3.Models.ProductOptions.Describe(items[i].BodyColor, items[i].LightColor)</div> }</td>
+                        <td class="c">@Fa.Num(items[i].Quantity)</td>
+                        <td class="num">@Fa.Money(items[i].UnitPrice)</td>
+                        <td class="num">@Fa.Money(items[i].UnitPrice * items[i].Quantity)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <section class="inv-totals">
+            <div><span>جمع کالاها</span><b>@Fa.Money(subtotal)</b></div>
+            <div><span>هزینهٔ ارسال</span><b>@(shipping == 0 ? "رایگان" : Fa.Money(shipping))</b></div>
+            <div class="grand"><span>مبلغ قابل پرداخت (تومان)</span><span>@Fa.Money(Model.TotalAmount)</span></div>
+        </section>
+
+        <p class="inv-words">مبلغ به حروف: @Fa.Words((long)Model.TotalAmount) تومان</p>
+
+        <section class="inv-pay">
+            <span>وضعیت پرداخت:</span>
+            @if (paid != null)
+            {
+                <span class="inv-chip ok">پرداخت‌شده</span>
+                <span>کد پیگیری: <bdi><b>@Fa.Digits(paid.RefNumber)</b></bdi></span>
+                <span>تاریخ پرداخت: <bdi>@Fa.Stamp(paid.CreatedAt)</bdi></span>
+            }
+            else
+            {
+                <span class="inv-chip">@Ghaforv3.Models.AdminLabels.Order(Model.Status)</span>
+            }
+        </section>
+
+        <footer class="inv-foot">با تشکر از خرید شما از فروشگاه غفوریان</footer>
+    </main>
+
+    <script src="@Asset.Url("~/Scripts/invoice.js")"></script>
+</body>
+</html>
