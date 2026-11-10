@@ -22,6 +22,17 @@
     </div>
     <div class="f">@Html.LabelFor(m => m.Description)@Html.TextAreaFor(m => m.Description, 5, 30, null)</div>
 
+    <h2 class="a-h">مشخصات و گزینه‌های خرید</h2>
+    <div class="two">
+        <div class="f">@Html.LabelFor(m => m.Code)@Html.TextBoxFor(m => m.Code, new { dir = "ltr", placeholder = "GH-001" })@Html.ValidationMessageFor(m => m.Code, "", new { @class = "a-err" })</div>
+        <div class="f">@Html.LabelFor(m => m.CartonQty)@Html.TextBoxFor(m => m.CartonQty, new { type = "number", inputmode = "numeric" })@Html.ValidationMessageFor(m => m.CartonQty, "", new { @class = "a-err" })</div>
+    </div>
+    <div class="f">@Html.LabelFor(m => m.BodyColors)@Html.TextBoxFor(m => m.BodyColors, new { placeholder = "سفید، مشکی، طلایی" })@Html.ValidationMessageFor(m => m.BodyColors, "", new { @class = "a-err" })
+        <small class="muted">اگر خالی باشد، مشتری رنگ بدنه انتخاب نمی‌کند. حداکثر ۱۲ گزینه.</small></div>
+    <div class="f">@Html.LabelFor(m => m.LightColors)@Html.TextBoxFor(m => m.LightColors, new { placeholder = "آفتابی (۲۷۰۰K)، طبیعی (۴۰۰۰K)، مهتابی (۶۵۰۰K)" })@Html.ValidationMessageFor(m => m.LightColors, "", new { @class = "a-err" })
+        <small class="muted">برای چراغ‌ها و لامپ‌ها؛ می‌توانی دمای رنگ (کلوین) را داخل پرانتز بنویسی.</small></div>
+    <div class="f">@Html.LabelFor(m => m.Warranty)@Html.TextAreaFor(m => m.Warranty, 3, 30, null)@Html.ValidationMessageFor(m => m.Warranty, "", new { @class = "a-err" })</div>
+
     <div class="f">
         <label>عکس محصول</label>
         @if (!string.IsNullOrEmpty(Model.ImageUrl)) { <img class="prev" src="@Url.Content(Model.ImageUrl)" alt="" /> }

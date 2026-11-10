@@ -23,6 +23,14 @@ namespace Ghaforv3.Areas.Admin.Controllers
             return View(new PagedVm<OrderRow> { Items = rows, Page = page, Pages = pages, Total = total, Status = status });
         }
 
+        // فاکتور قابل چاپ / ذخیره به‌صورت PDF
+        public ActionResult Invoice(int id)
+        {
+            var o = db.Orders.Include(x => x.User).Include(x => x.Address).Include(x => x.OrderItems).Include(x => x.Payments).FirstOrDefault(x => x.Id == id);
+            if (o == null) return HttpNotFound();
+            return View("~/Views/Shared/_Invoice.cshtml", o);
+        }
+
         public ActionResult Details(int id)
         {
             var o = db.Orders.Include(x => x.User).Include(x => x.Address).Include(x => x.OrderItems).Include(x => x.Payments).FirstOrDefault(x => x.Id == id);
@@ -33,7 +41,7 @@ namespace Ghaforv3.Areas.Admin.Controllers
                 Receiver = o.Address.Receiver, Phone = o.Address.Phone,
                 Address = o.Address.Province + "، " + o.Address.City + "، " + o.Address.Details,
                 Status = o.Status, Total = o.TotalAmount, CreatedAt = o.CreatedAt,
-                Items = o.OrderItems.Select(i => new OrderItemRow { Title = i.Title, UnitPrice = i.UnitPrice, Quantity = i.Quantity }).ToList(),
+                Items = o.OrderItems.Select(i => new OrderItemRow { Title = i.Title, UnitPrice = i.UnitPrice, Quantity = i.Quantity, BodyColor = i.BodyColor, LightColor = i.LightColor }).ToList(),
                 PaymentLines = o.Payments.OrderBy(p => p.CreatedAt)
                     .Select(p => Fa.Stamp(p.CreatedAt) + " · " + p.Gateway + " · " + (p.IsSuccess ? "موفق (کد " + p.RefNumber + ")" : "ناموفق یا نیمه‌کاره")).ToList(),
                 RefundNeeded = o.Status == OrderService.Canceled && o.Payments.Any(p => p.IsSuccess)

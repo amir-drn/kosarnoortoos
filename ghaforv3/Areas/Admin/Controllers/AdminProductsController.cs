@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Web;
@@ -39,7 +40,8 @@ namespace Ghaforv3.Areas.Admin.Controllers
                 Id = p.Id, Title = p.Title, Slug = p.Slug, CategoryId = p.CategoryId, BrandId = p.BrandId,
                 Price = p.Price, OldPrice = p.OldPrice, Unit = p.Unit, Stock = p.Stock, Description = p.Description,
                 IsActive = p.IsActive, IsDailyOffer = p.IsDailyOffer, IsFlashSale = p.IsFlashSale,
-                OfferEndsAt = p.OfferEndsAt, ImageUrl = p.ImageUrl
+                OfferEndsAt = p.OfferEndsAt, ImageUrl = p.ImageUrl,
+                Code = p.Code, CartonQty = p.CartonQty, Warranty = p.Warranty, BodyColors = p.BodyColors, LightColors = p.LightColors
             }));
         }
 
@@ -49,6 +51,11 @@ namespace Ghaforv3.Areas.Admin.Controllers
             m.Slug = (m.Slug ?? "").Trim().ToLowerInvariant();
             if (db.Products.Any(p => p.Slug == m.Slug && p.Id != m.Id)) ModelState.AddModelError("Slug", "این Slug قبلاً استفاده شده");
             if (m.OldPrice.HasValue && m.Price.HasValue && m.OldPrice < m.Price) ModelState.AddModelError("OldPrice", "قیمت قبل از تخفیف باید بیشتر از قیمت فعلی باشد");
+
+            m.Code = string.IsNullOrWhiteSpace(m.Code) ? null : m.Code.Trim();
+            if (m.Code != null && db.Products.Any(p => p.Code == m.Code && p.Id != m.Id)) ModelState.AddModelError("Code", "این کد محصول برای کالای دیگری ثبت شده");
+            var bodyErr = ProductOptions.Validate(m.BodyColors); if (bodyErr != null) ModelState.AddModelError("BodyColors", bodyErr);
+            var lightErr = ProductOptions.Validate(m.LightColors); if (lightErr != null) ModelState.AddModelError("LightColors", lightErr);
 
             string newUrl = null;
             if (ModelState.IsValid && image != null && image.ContentLength > 0)
@@ -67,6 +74,9 @@ namespace Ghaforv3.Areas.Admin.Controllers
             product.Price = m.Price.Value; product.OldPrice = m.OldPrice; product.Stock = m.Stock;
             product.Unit = string.IsNullOrWhiteSpace(m.Unit) ? "هر عدد" : m.Unit.Trim();
             product.Description = m.Description; product.IsActive = m.IsActive;
+            product.Code = m.Code; product.CartonQty = m.CartonQty;
+            product.Warranty = string.IsNullOrWhiteSpace(m.Warranty) ? null : m.Warranty.Trim();
+            product.BodyColors = ProductOptions.Normalize(m.BodyColors); product.LightColors = ProductOptions.Normalize(m.LightColors);
             product.IsDailyOffer = m.IsDailyOffer; product.IsFlashSale = m.IsFlashSale; product.OfferEndsAt = m.OfferEndsAt;
             if (newUrl != null) { ImageUpload.Delete(Server, product.ImageUrl); product.ImageUrl = newUrl; }
 
@@ -93,6 +103,71 @@ namespace Ghaforv3.Areas.Admin.Controllers
             {
                 TempData["err"] = "این محصول در سفارش‌ها استفاده شده و حذف نمی‌شود؛ به‌جای حذف، غیرفعالش کن.";
             }
+            return RedirectToAction("Index");
+        }
+
+        // ---------- ورود و خروج گروهی با اکسل ----------
+        private const int MaxImportBytes = 4 * 1024 * 1024;
+
+        public ActionResult Import() { return View(); }
+
+        // قالب خالی با عنوان ستون‌ها
+        public ActionResult Template()
+        {
+            var rows = new List<object[]> { ProductImporter.Headers.Cast<object>().ToArray() };
+            return File(XlsxWriter.Write("محصولات", rows, ProductImporter.Widths), XlsxWriter.Mime, "products-template.xlsx");
+        }
+
+        // همهٔ محصولات با همین ستون‌ها؛ می‌توانی قیمت‌ها را ویرایش و دوباره وارد کنی
+        public ActionResult ExportXlsx()
+        {
+            var bytes = XlsxWriter.Write("محصولات", ProductImporter.ExportRows(db), ProductImporter.Widths);
+            return File(bytes, XlsxWriter.Mime, "products-" + DateTime.Now.ToString("yyyyMMdd-HHmm") + ".xlsx");
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult ImportUpload(HttpPostedFileBase file)
+        {
+            if (file == null || file.ContentLength == 0) { TempData["err"] = "فایلی انتخاب نشده است"; return RedirectToAction("Import"); }
+            if (file.ContentLength > MaxImportBytes) { TempData["err"] = "حجم فایل بیشتر از ۴ مگابایت است"; return RedirectToAction("Import"); }
+
+            var ext = (System.IO.Path.GetExtension(file.FileName) ?? "").ToLowerInvariant();
+            List<string[]> table;
+            try
+            {
+                if (ext == ".xlsx") table = XlsxReader.ReadFirstSheet(file.InputStream, ProductImporter.MaxRows);
+                else if (ext == ".csv") table = CsvReader.Read(file.InputStream, ProductImporter.MaxRows);
+                else { TempData["err"] = "فقط فایل .xlsx یا .csv پذیرفته می‌شود (فرمت قدیمی .xls را با «Save As ▸ Excel Workbook» تبدیل کن)"; return RedirectToAction("Import"); }
+            }
+            catch (Exception)
+            {
+                TempData["err"] = "فایل خوانده نشد. مطمئن شو یک فایل xlsx سالم است.";
+                return RedirectToAction("Import");
+            }
+
+            Session["import-table"] = table;
+            var plan = ProductImporter.Build(db, table, System.IO.Path.GetFileName(file.FileName));
+            return View("ImportPreview", plan);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult ImportConfirm()
+        {
+            var table = Session["import-table"] as List<string[]>;
+            if (table == null) { TempData["err"] = "مهلت پیش‌نمایش تمام شده؛ فایل را دوباره بارگذاری کن"; return RedirectToAction("Import"); }
+            Session.Remove("import-table");
+
+            var plan = ProductImporter.Build(db, table, "");      // دوباره با وضعیت فعلی دیتابیس محاسبه می‌شود
+            if (plan.Fatal != null) { TempData["err"] = plan.Fatal; return RedirectToAction("Import"); }
+            try { ProductImporter.Apply(db, plan); }
+            catch (Exception)
+            {
+                TempData["err"] = "ثبت انجام نشد و هیچ تغییری اعمال نشد. دوباره تلاش کن.";
+                return RedirectToAction("Import");
+            }
+            System.Web.HttpRuntime.Cache.Remove(Ghaforv3.Controllers.HomeController.CatsCacheKey);
+            TempData["ok"] = plan.Created + " کالای جدید ساخته و " + plan.Updated + " کالا به‌روزرسانی شد"
+                + (plan.ErrorCount > 0 ? "؛ " + plan.ErrorCount + " ردیف خطا داشت و وارد نشد" : "");
             return RedirectToAction("Index");
         }
 

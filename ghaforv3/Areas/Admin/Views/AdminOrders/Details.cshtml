@@ -6,12 +6,13 @@
     <p><b>گیرنده:</b> @(Model.Receiver) · @(Model.Phone)</p>
     <p><b>آدرس:</b> @(Model.Address)</p>
     <p><b>تاریخ:</b> @Fa.Stamp(Model.CreatedAt)</p>
+    <p><a class="a-btn sm" target="_blank" rel="noopener" href="@Url.Action("Invoice", "AdminOrders", new { id = Model.Id })">🧾 فاکتور / ذخیره PDF</a></p>
 </div>
 
 <h2 class="a-h">اقلام</h2>
 @foreach (var i in Model.Items)
 {
-    <div class="a-row"><span class="grow">@(i.Title) × @(i.Quantity)</span><b>@((i.UnitPrice * i.Quantity).ToString("N0"))</b></div>
+    <div class="a-row"><span class="grow">@(i.Title) × @(i.Quantity)@if (!string.IsNullOrEmpty(i.BodyColor) || !string.IsNullOrEmpty(i.LightColor)) { <br /><small class="muted">@Ghaforv3.Models.ProductOptions.Describe(i.BodyColor, i.LightColor)</small> }</span><b>@((i.UnitPrice * i.Quantity).ToString("N0"))</b></div>
 }
 <div class="a-row total"><span class="grow">جمع کل</span><b>@(Model.Total.ToString("N0")) تومان</b></div>
 

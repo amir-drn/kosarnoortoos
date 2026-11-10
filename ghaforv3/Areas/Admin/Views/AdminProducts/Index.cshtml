@@ -5,6 +5,10 @@
     <input type="search" name="q" value="@(Model.Q)" placeholder="جستجو در عنوان یا Slug" />
     <button type="submit">🔍</button>
 </form>
+<div class="a-toolbar">
+    <a class="a-btn sm" href="@Url.Action("Import", "AdminProducts")">📥 ورود از اکسل</a>
+    <a class="a-btn sm ghost" href="@Url.Action("ExportXlsx", "AdminProducts")">📤 خروجی اکسل</a>
+</div>
 <small class="muted">@(Model.Total) محصول</small>
 
 @foreach (var p in Model.Items)
