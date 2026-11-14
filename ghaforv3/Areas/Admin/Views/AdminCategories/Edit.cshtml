@@ -16,6 +16,11 @@
         <label>یا آپلود عکس دسته</label>
         <input type="file" name="image" accept="image/jpeg,image/png,image/webp" />
         <small class="muted">پیشنهاد: ۴۲۰×۵۱۰ (عمودی)</small>
+        @if (Model.Id != 0 && !string.IsNullOrEmpty(Model.Icon))
+        {
+            if (Model.Icon.StartsWith("~/")) { <img class="a-preview" src="@Url.Content(Model.Icon)" alt="" /> }
+            <button class="a-btn sm danger" type="submit" formaction="@Url.Action("RemoveImage", "AdminCategories")" formnovalidate data-confirm="آیکن/عکس این دسته حذف شود؟">🗑 حذف آیکن / عکس</button>
+        }
     </div>
     <label class="chk">@Html.CheckBoxFor(m => m.IsActive) @Html.DisplayNameFor(m => m.IsActive)</label>
 

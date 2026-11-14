@@ -42,7 +42,7 @@
             {
                 <del>@Fa.Money(Model.OldPrice.Value)</del>
             }
-            <b>@Fa.Money(Model.Price)</b> <span>تومان</span>
+            @if (Model.HasPriceVariants) { <small class="from">از</small> }<b>@Fa.Money(Model.Price)</b> <span>تومان</span>
             <small class="muted">@(Model.Unit)</small>
         </div>
     </div>

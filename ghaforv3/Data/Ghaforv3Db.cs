@@ -39,6 +39,9 @@ namespace Ghaforv3.Models
             // حذف آبشاری فقط جاهایی که صریحاً می‌خواهیم (پایین)؛ جلوی «multiple cascade paths» در SQL Server هم گرفته می‌شود
             mb.Conventions.Remove<OneToManyCascadeDeleteConvention>();
 
+            // کلاس گزینهٔ رنگ فقط برای محاسبه است، نه جدول دیتابیس
+            mb.Ignore<ProductOptions.ProductOption>();
+
             mb.Entity<User>().ToTable("Users");
             mb.Entity<User>().Property(x => x.FullName).IsRequired().HasMaxLength(100);
             mb.Entity<User>().Property(x => x.Mobile).IsRequired().HasMaxLength(15).IsUnicode(false)
@@ -81,8 +84,8 @@ namespace Ghaforv3.Models
             mb.Entity<Product>().Property(x => x.Code).HasMaxLength(50)
                 .HasColumnAnnotation("Index", new IndexAnnotation(new IndexAttribute("IX_Products_Code")));
             mb.Entity<Product>().Property(x => x.Warranty).HasMaxLength(1000);
-            mb.Entity<Product>().Property(x => x.BodyColors).HasMaxLength(300);
-            mb.Entity<Product>().Property(x => x.LightColors).HasMaxLength(300);
+            mb.Entity<Product>().Property(x => x.BodyColors).HasMaxLength(600);
+            mb.Entity<Product>().Property(x => x.LightColors).HasMaxLength(600);
             mb.Entity<Product>().Property(x => x.CreatedAt).HasColumnType("datetime2");
             mb.Entity<Product>().Property(x => x.OfferEndsAt).HasColumnType("datetime2");
             mb.Entity<Product>().HasRequired(p => p.Category).WithMany(c => c.Products).HasForeignKey(p => p.CategoryId).WillCascadeOnDelete(false);
@@ -198,7 +201,7 @@ namespace Ghaforv3.Models
                 switch (x.Slug)
                 {
                     case "led-10w-e27":
-                        x.CartonQty = 100; x.LightColors = "آفتابی (۲۷۰۰K)،مهتابی (۶۵۰۰K)،یخی (۸۰۰۰K)"; break;
+                        x.CartonQty = 100; x.LightColors = "آفتابی (۲۷۰۰K)،مهتابی (۶۵۰۰K)،بنفش=95000"; break;
                     case "panel-24w":
                         x.CartonQty = 10; x.BodyColors = "سفید،مشکی"; x.LightColors = "آفتابی (۳۰۰۰K)،طبیعی (۴۰۰۰K)،مهتابی (۶۵۰۰K)"; break;
                     case "socket-earth":
@@ -242,6 +245,9 @@ namespace Ghaforv3.Models
                 "IF COL_LENGTH('dbo.Products','LightColors') IS NULL ALTER TABLE dbo.Products ADD LightColors nvarchar(300) NULL",
                 "IF COL_LENGTH('dbo.OrderItems','BodyColor') IS NULL ALTER TABLE dbo.OrderItems ADD BodyColor nvarchar(50) NULL",
                 "IF COL_LENGTH('dbo.OrderItems','LightColor') IS NULL ALTER TABLE dbo.OrderItems ADD LightColor nvarchar(50) NULL",
+                // نسخهٔ ۳: جا برای قیمتِ گزینه‌ها (مثل بنفش=65000)
+                "IF COL_LENGTH('dbo.Products','BodyColors') < 1200 ALTER TABLE dbo.Products ALTER COLUMN BodyColors nvarchar(600) NULL",
+                "IF COL_LENGTH('dbo.Products','LightColors') < 1200 ALTER TABLE dbo.Products ALTER COLUMN LightColors nvarchar(600) NULL",
                 "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Products_Code' AND object_id = OBJECT_ID(N'dbo.Products')) CREATE INDEX IX_Products_Code ON dbo.Products (Code)"
             };
             foreach (var sql in steps) db.Database.ExecuteSqlCommand(sql);

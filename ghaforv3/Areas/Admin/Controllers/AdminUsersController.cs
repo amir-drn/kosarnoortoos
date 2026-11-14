@@ -67,6 +67,24 @@ namespace Ghaforv3.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+        // حذف کاربر: بدون سفارش، نه خودت و نه سوپر ادمین. کاربر دارای سفارش را مسدود (غیرفعال) کن.
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult Delete(int id)
+        {
+            var u = db.Users.Find(id);
+            if (u == null) return HttpNotFound();
+            if (!Allowed.Contains(u.Role)) return new HttpStatusCodeResult(403);
+            if (u.Id == Me.Id) { TempData["err"] = "حساب خودت را نمی‌توانی حذف کنی"; return RedirectToAction("Edit", new { id }); }
+            if (u.Role == 2) { TempData["err"] = "سوپر ادمین حذف نمی‌شود؛ اول نقشش را به کاربر عادی تغییر بده"; return RedirectToAction("Edit", new { id }); }
+            if (db.Orders.Any(o => o.UserId == id)) { TempData["err"] = "این کاربر سفارش دارد و حذف نمی‌شود؛ به‌جای حذف، حسابش را مسدود (غیرفعال) کن"; return RedirectToAction("Edit", new { id }); }
+            db.Entry(u).Collection(x => x.Products).Load();
+            u.Products.Clear();                      // علاقه‌مندی‌ها
+            db.Users.Remove(u);                      // آدرس‌ها خودکار حذف می‌شوند
+            db.SaveChanges();
+            TempData["ok"] = "کاربر حذف شد";
+            return RedirectToAction("Index");
+        }
+
         private UserFormVm Fill(UserFormVm m)
         {
             m.Roles = Allowed.Select(r => new SelectListItem { Value = r.ToString(), Text = AdminLabels.Role(r), Selected = r == m.Role }).ToList();

@@ -15,6 +15,10 @@
         <label>عکس پس‌زمینه</label>
         @if (!string.IsNullOrEmpty(Model.ImageUrl)) { <img class="a-preview" src="@Url.Content(Model.ImageUrl)" alt="" /> }
         <input type="file" name="image" accept="image/jpeg,image/png,image/webp" />
+        @if (Model.Id != 0 && !string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <button class="a-btn sm danger" type="submit" formaction="@Url.Action("RemoveImage", "AdminBanners")" formnovalidate data-confirm="عکس این بنر حذف شود؟">🗑 حذف عکس بنر</button>
+        }
         <small class="muted">پیشنهاد: عرض ۱۶۰۰ پیکسل به بالا، سبک و بدون متن روی عکس. بدون عکس، لامپ متحرک نمایش داده می‌شود.</small>
     </div>
     <label class="chk">@Html.CheckBoxFor(m => m.IsActive) @Html.DisplayNameFor(m => m.IsActive)</label>

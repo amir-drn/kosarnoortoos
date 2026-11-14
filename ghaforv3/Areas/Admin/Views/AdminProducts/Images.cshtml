@@ -1,20 +1,44 @@
 ﻿@model Ghaforv3.Models.ProductImagesVm
 @{ Layout = "~/Views/Shared/_AdminLayout.cshtml"; ViewBag.Title = "گالری: " + Model.Title; }
-<p class="muted">عکس اصلی محصول را از «ویرایش محصول» عوض کن؛ اینجا عکس‌های اضافه (گالری صفحهٔ محصول) را مدیریت کن. حداکثر ۱۲ عکس.</p>
-<div class="a-gallery">
-    @foreach (var i in Model.Images)
+
+@using (Html.BeginForm("BulkDeleteImages", "AdminProducts", new { id = Model.ProductId }, FormMethod.Post, new { @class = "a-plain" }))
+{
+    @Html.AntiForgeryToken()
+
+    <h2 class="a-h">عکس اصلی</h2>
+    if (!string.IsNullOrEmpty(Model.MainImageUrl))
     {
-        <div class="a-gimg">
-            <img src="@Url.Content(i.ImageUrl)" alt="" />
-            @using (Html.BeginForm("DeleteImage", "AdminProducts", new { id = Model.ProductId, imageId = i.Id }, FormMethod.Post, new { data_confirm = "این عکس حذف شود؟" }))
-            {
-                @Html.AntiForgeryToken()
-                <button class="a-btn sm danger" type="submit">حذف</button>
-            }
+        <div class="a-gallery">
+            <div class="a-gimg">
+                <img src="@Url.Content(Model.MainImageUrl)" alt="" />
+                <button class="a-btn sm danger" type="submit" formaction="@Url.Action("DeleteMainImage", "AdminProducts", new { id = Model.ProductId, returnTo = "images" })" data-confirm="عکس اصلی این محصول حذف شود؟">حذف عکس اصلی</button>
+            </div>
         </div>
     }
-</div>
-@if (Model.Images.Count == 0) { <p class="muted">عکس اضافه‌ای ثبت نشده.</p> }
+    else { <p class="muted">عکس اصلی ندارد؛ از «ویرایش محصول» اضافه کن.</p> }
+
+    <h2 class="a-h">گالری</h2>
+    <p class="muted">عکس‌های اضافهٔ صفحهٔ محصول؛ حداکثر ۱۲ عکس. برای حذف چندتایی، تیک بزن و دکمهٔ حذف انتخاب‌شده‌ها را بزن.</p>
+    <div class="a-gallery">
+        @foreach (var i in Model.Images)
+        {
+            <div class="a-gimg">
+                <label class="a-pick"><input type="checkbox" name="ids" value="@(i.Id)" /> انتخاب</label>
+                <img src="@Url.Content(i.ImageUrl)" alt="" />
+                <button class="a-btn sm danger" type="submit" formaction="@Url.Action("DeleteImage", "AdminProducts", new { id = Model.ProductId, imageId = i.Id })" data-confirm="این عکس حذف شود؟">حذف</button>
+            </div>
+        }
+    </div>
+    if (Model.Images.Count == 0) { <p class="muted">عکس اضافه‌ای ثبت نشده.</p> }
+    else
+    {
+        <div class="a-toolbar">
+            <button class="a-btn sm danger" type="submit" data-confirm="عکس‌های انتخاب‌شده حذف شوند؟">🗑 حذف انتخاب‌شده‌ها</button>
+            <button class="a-btn sm danger" type="submit" formaction="@Url.Action("DeleteAllImages", "AdminProducts", new { id = Model.ProductId })" data-confirm="همهٔ عکس‌های گالری حذف شوند؟">حذف همهٔ عکس‌های گالری</button>
+        </div>
+    }
+}
+
 @using (Html.BeginForm("AddImages", "AdminProducts", new { id = Model.ProductId }, FormMethod.Post, new { @class = "a-form", enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()

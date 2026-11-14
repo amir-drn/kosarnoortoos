@@ -60,6 +60,20 @@ namespace Ghaforv3.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+        // حذف عکس بنر (خود بنر می‌ماند؛ بدون عکس، لامپ متحرک نمایش داده می‌شود)
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult RemoveImage(int id)
+        {
+            var b = db.Banners.Find(id);
+            if (b == null) return HttpNotFound();
+            var old = b.ImageUrl;
+            b.ImageUrl = null;
+            db.SaveChanges();
+            ImageUpload.Delete(Server, old);
+            TempData["ok"] = "عکس بنر حذف شد";
+            return RedirectToAction("Edit", new { id });
+        }
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Delete(int id)
         {

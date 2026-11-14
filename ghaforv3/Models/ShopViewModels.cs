@@ -77,6 +77,7 @@ namespace Ghaforv3.Models
     {
         public int ProductId { get; set; }
         public string Title { get; set; }
+        public string MainImageUrl { get; set; }
         public List<ProductImage> Images { get; set; }
     }
 }

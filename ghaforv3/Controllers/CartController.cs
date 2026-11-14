@@ -64,7 +64,7 @@ namespace Ghaforv3.Controllers
                 cart.Items.Add(item);
             }
             item.Title = p.Title; item.Slug = p.Slug; item.ImageUrl = p.ImageUrl;
-            item.UnitPrice = p.Price; item.Quantity = want;
+            item.UnitPrice = p.PriceFor(body, light); item.Quantity = want;
 
             return Json(new { ok = true, count = cart.Count, message });
         }

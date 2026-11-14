@@ -136,8 +136,8 @@ namespace Ghaforv3.Models
         [StringLength(50), Display(Name = "کد محصول")] public string Code { get; set; }
         [Range(1, 100000, ErrorMessage = "تعداد در کارتن معتبر نیست"), Display(Name = "تعداد در کارتن")] public int? CartonQty { get; set; }
         [StringLength(1000), Display(Name = "توضیحات گارانتی")] public string Warranty { get; set; }
-        [StringLength(300), Display(Name = "رنگ‌های بدنه (با ویرگول جدا کن)")] public string BodyColors { get; set; }
-        [StringLength(300), Display(Name = "رنگ‌های نور (با ویرگول جدا کن)")] public string LightColors { get; set; }
+        [StringLength(600), Display(Name = "رنگ‌های بدنه (با ویرگول یا / جدا کن)")] public string BodyColors { get; set; }
+        [StringLength(600), Display(Name = "رنگ‌های نور (با ویرگول یا / جدا کن)")] public string LightColors { get; set; }
         [Display(Name = "فعال")] public bool IsActive { get; set; }
         [Display(Name = "پیشنهاد امروز")] public bool IsDailyOffer { get; set; }
         [Display(Name = "حراج ویژه")] public bool IsFlashSale { get; set; }

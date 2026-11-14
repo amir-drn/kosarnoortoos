@@ -64,6 +64,21 @@ namespace Ghaforv3.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+        // حذف آیکن/عکس دسته (خود دسته می‌ماند)
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult RemoveImage(int id)
+        {
+            var c = db.Categories.Find(id);
+            if (c == null) return HttpNotFound();
+            var old = c.Icon;
+            c.Icon = null;
+            db.SaveChanges();
+            ImageUpload.Delete(Server, old);       // اگر ایموجی بود چیزی پاک نمی‌شود
+            System.Web.HttpRuntime.Cache.Remove(Ghaforv3.Controllers.HomeController.CatsCacheKey);
+            TempData["ok"] = "آیکن دسته حذف شد";
+            return RedirectToAction("Edit", new { id });
+        }
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Delete(int id)
         {

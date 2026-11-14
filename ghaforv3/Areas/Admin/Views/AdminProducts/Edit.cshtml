@@ -28,9 +28,9 @@
         <div class="f">@Html.LabelFor(m => m.CartonQty)@Html.TextBoxFor(m => m.CartonQty, new { type = "number", inputmode = "numeric" })@Html.ValidationMessageFor(m => m.CartonQty, "", new { @class = "a-err" })</div>
     </div>
     <div class="f">@Html.LabelFor(m => m.BodyColors)@Html.TextBoxFor(m => m.BodyColors, new { placeholder = "سفید، مشکی، طلایی" })@Html.ValidationMessageFor(m => m.BodyColors, "", new { @class = "a-err" })
-        <small class="muted">اگر خالی باشد، مشتری رنگ بدنه انتخاب نمی‌کند. حداکثر ۱۲ گزینه.</small></div>
+        <small class="muted">اگر خالی باشد، مشتری رنگ بدنه انتخاب نمی‌کند. حداکثر ۱۲ گزینه. قیمت جدا: <b dir="ltr">طلایی=75000</b> (قیمت نهایی) یا <b dir="ltr">طلایی+5000</b> (افزایش به قیمت پایه).</small></div>
     <div class="f">@Html.LabelFor(m => m.LightColors)@Html.TextBoxFor(m => m.LightColors, new { placeholder = "آفتابی (۲۷۰۰K)، طبیعی (۴۰۰۰K)، مهتابی (۶۵۰۰K)" })@Html.ValidationMessageFor(m => m.LightColors, "", new { @class = "a-err" })
-        <small class="muted">برای چراغ‌ها و لامپ‌ها؛ می‌توانی دمای رنگ (کلوین) را داخل پرانتز بنویسی.</small></div>
+        <small class="muted">برای چراغ‌ها و لامپ‌ها؛ دمای رنگ را داخل پرانتز بنویس. قیمت جدا: <b dir="ltr">بنفش=65000</b> (قیمت نهایی) یا <b dir="ltr">بنفش+5000</b> (افزایش). گزینه‌ای که قیمت ندارد، همان قیمت پایهٔ محصول را دارد.</small></div>
     <div class="f">@Html.LabelFor(m => m.Warranty)@Html.TextAreaFor(m => m.Warranty, 3, 30, null)@Html.ValidationMessageFor(m => m.Warranty, "", new { @class = "a-err" })</div>
 
     <div class="f">
@@ -38,6 +38,10 @@
         @if (!string.IsNullOrEmpty(Model.ImageUrl)) { <img class="prev" src="@Url.Content(Model.ImageUrl)" alt="" /> }
         <input type="file" name="image" accept="image/jpeg,image/png,image/webp" />
         <small class="muted">jpg / png / webp، حداکثر ۲ مگابایت. پیشنهاد: ۶۰۰×۶۰۰</small>
+        @if (Model.Id != 0 && !string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <button class="a-btn sm danger" type="submit" formaction="@Url.Action("DeleteMainImage", "AdminProducts")" formnovalidate data-confirm="عکس اصلی این محصول حذف شود؟">🗑 حذف عکس اصلی</button>
+        }
     </div>
 
     <label class="chk">@Html.CheckBoxFor(m => m.IsActive) @Html.DisplayNameFor(m => m.IsActive)</label>

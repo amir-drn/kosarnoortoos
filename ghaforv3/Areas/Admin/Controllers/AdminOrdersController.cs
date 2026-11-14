@@ -33,6 +33,7 @@ namespace Ghaforv3.Areas.Admin.Controllers
 
         public ActionResult Details(int id)
         {
+            ViewBag.CanDelete = Me.Role == 2;
             var o = db.Orders.Include(x => x.User).Include(x => x.Address).Include(x => x.OrderItems).Include(x => x.Payments).FirstOrDefault(x => x.Id == id);
             if (o == null) return HttpNotFound();
             return View(new OrderDetailsVm
@@ -46,6 +47,24 @@ namespace Ghaforv3.Areas.Admin.Controllers
                     .Select(p => Fa.Stamp(p.CreatedAt) + " · " + p.Gateway + " · " + (p.IsSuccess ? "موفق (کد " + p.RefNumber + ")" : "ناموفق یا نیمه‌کاره")).ToList(),
                 RefundNeeded = o.Status == OrderService.Canceled && o.Payments.Any(p => p.IsSuccess)
             });
+        }
+
+        // حذف سفارش: فقط سوپر ادمین، فقط سفارش «لغوشده» و بدون پرداخت موفق (برای حفظ سوابق مالی)
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult Delete(int id)
+        {
+            if (Me.Role != 2) return new HttpStatusCodeResult(403);
+            var o = db.Orders.Include(x => x.OrderItems).Include(x => x.Payments).FirstOrDefault(x => x.Id == id);
+            if (o == null) return HttpNotFound();
+            if (o.Status != OrderService.Canceled)
+            { TempData["err"] = "فقط سفارش «لغو شده» حذف می‌شود؛ اول وضعیت را لغو کن (موجودی کالاها برمی‌گردد)"; return RedirectToAction("Details", new { id }); }
+            if (o.Payments.Any(p => p.IsSuccess))
+            { TempData["err"] = "این سفارش پرداخت موفق دارد؛ برای حفظ سوابق مالی حذف نمی‌شود. اول مبلغ را به مشتری برگردان."; return RedirectToAction("Details", new { id }); }
+            db.Payments.RemoveRange(o.Payments.ToList());
+            db.Orders.Remove(o);                    // اقلام سفارش خودکار با آن حذف می‌شوند
+            db.SaveChanges();
+            TempData["ok"] = "سفارش حذف شد";
+            return RedirectToAction("Index");
         }
 
         [HttpPost, ValidateAntiForgeryToken]

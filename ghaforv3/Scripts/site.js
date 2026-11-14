@@ -328,6 +328,21 @@
         if (minus) minus.addEventListener('click', function () { qty.value = Math.max(1, (parseInt(qty.value, 10) || 1) - 1); });
     }
 
+    // ---------- قیمت زندهٔ صفحهٔ محصول (فقط نمایش؛ قیمت واقعی همیشه در سرور از دیتابیس حساب می‌شود) ----------
+    var priceBox = d.querySelector('.price-lg[data-base]');
+    function updatePrice() {
+        if (!priceBox) return;
+        var base = parseFloat(priceBox.getAttribute('data-base')) || 0, delta = 0;
+        each(d.querySelectorAll('.opt input:checked'), function (i) { delta += parseFloat(i.getAttribute('data-delta')) || 0; });
+        var b = priceBox.querySelector('b');
+        if (b) b.textContent = Math.max(0, base + delta).toLocaleString('fa-IR');
+        var changed = delta !== 0;
+        priceBox.classList.toggle('priced', changed);
+        var badge = d.querySelector('.gallery .badge');
+        if (badge) badge.style.display = changed ? 'none' : '';
+    }
+    updatePrice();
+
     // ---------- انتخاب رنگ: متن کنار عنوان گروه به‌روز می‌شود ----------
     d.addEventListener('change', function (e) {
         var inp = e.target;
@@ -337,6 +352,7 @@
         var label = group.querySelector('[data-opt-label]');
         if (label) label.textContent = inp.value;
         group.classList.remove('need');
+        updatePrice();
     });
 
     // ---------- علاقه‌مندی‌ها (قلب) ----------

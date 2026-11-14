@@ -176,7 +176,7 @@ namespace Ghaforv3.Areas.Admin.Controllers
         {
             var p = db.Products.Find(id);
             if (p == null) return HttpNotFound();
-            return View(new ProductImagesVm { ProductId = p.Id, Title = p.Title,
+            return View(new ProductImagesVm { ProductId = p.Id, Title = p.Title, MainImageUrl = p.ImageUrl,
                 Images = db.ProductImages.Where(i => i.ProductId == id).OrderBy(i => i.SortOrder).ThenBy(i => i.Id).ToList() });
         }
 
@@ -200,6 +200,47 @@ namespace Ghaforv3.Areas.Admin.Controllers
             if (added > 0) db.SaveChanges();
             if (added > 0) TempData["ok"] = added + " عکس اضافه شد";
             if (firstError != null) TempData["err"] = firstError;
+            return RedirectToAction("Images", new { id });
+        }
+
+        // حذف عکس اصلی محصول (کالا بدون عکس هم نمایش داده می‌شود)
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult DeleteMainImage(int id, string returnTo)
+        {
+            var p = db.Products.Find(id);
+            if (p == null) return HttpNotFound();
+            var old = p.ImageUrl;
+            p.ImageUrl = null;
+            db.SaveChanges();
+            ImageUpload.Delete(Server, old);
+            TempData["ok"] = "عکس اصلی محصول حذف شد";
+            return returnTo == "images" ? RedirectToAction("Images", new { id }) : RedirectToAction("Edit", new { id });
+        }
+
+        // حذف چند عکس انتخاب‌شده از گالری
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult BulkDeleteImages(int id, int[] ids)
+        {
+            if (db.Products.Find(id) == null) return HttpNotFound();
+            if (ids == null || ids.Length == 0) { TempData["err"] = "هیچ عکسی انتخاب نشده است"; return RedirectToAction("Images", new { id }); }
+            var imgs = db.ProductImages.Where(i => i.ProductId == id && ids.Contains(i.Id)).ToList();   // فقط عکس‌های همین محصول
+            foreach (var i in imgs) db.ProductImages.Remove(i);
+            db.SaveChanges();
+            foreach (var i in imgs) ImageUpload.Delete(Server, i.ImageUrl);
+            TempData["ok"] = imgs.Count + " عکس حذف شد";
+            return RedirectToAction("Images", new { id });
+        }
+
+        // حذف همهٔ عکس‌های گالری
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult DeleteAllImages(int id)
+        {
+            if (db.Products.Find(id) == null) return HttpNotFound();
+            var imgs = db.ProductImages.Where(i => i.ProductId == id).ToList();
+            foreach (var i in imgs) db.ProductImages.Remove(i);
+            db.SaveChanges();
+            foreach (var i in imgs) ImageUpload.Delete(Server, i.ImageUrl);
+            TempData["ok"] = "همهٔ عکس‌های گالری حذف شد";
             return RedirectToAction("Images", new { id });
         }
 

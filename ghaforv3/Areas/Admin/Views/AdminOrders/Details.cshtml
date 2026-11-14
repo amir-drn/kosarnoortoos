@@ -36,3 +36,13 @@
     </select>
     <button class="a-btn" type="submit">ثبت وضعیت</button>
 }
+
+@if (Model.Status == 4 && ViewBag.CanDelete == true)
+{
+    using (Html.BeginForm("Delete", "AdminOrders", FormMethod.Post, new { @class = "a-form", data_confirm = "این سفارش برای همیشه حذف شود؟" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@(Model.Id)" />
+        <button class="a-btn danger" type="submit">🗑 حذف سفارش (فقط سوپر ادمین)</button>
+    }
+}

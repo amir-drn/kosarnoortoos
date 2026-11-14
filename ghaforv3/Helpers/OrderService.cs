@@ -50,8 +50,9 @@ namespace Ghaforv3.Helpers
                         return "گزینه‌های رنگ «" + p.Title + "» دیگر معتبر نیست؛ آن را دوباره به سبد اضافه کن";
 
                     var title = p.Title.Length > 200 ? p.Title.Substring(0, 200) : p.Title;
-                    items.Add(new OrderItem { ProductId = p.Id, Title = title, UnitPrice = p.Price, Quantity = qty, BodyColor = body, LightColor = light });
-                    subtotal += p.Price * qty;
+                    var unit = p.PriceFor(body, light);          // قیمت نهایی با رنگ انتخابی؛ همیشه از دیتابیس
+                    items.Add(new OrderItem { ProductId = p.Id, Title = title, UnitPrice = unit, Quantity = qty, BodyColor = body, LightColor = light });
+                    subtotal += unit * qty;
                 }
 
                 var o = new Order

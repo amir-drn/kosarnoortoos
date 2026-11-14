@@ -54,7 +54,7 @@
     <small class="muted">@(p.Brand != null ? p.Brand.Title + " · " : "")@(p.Category.Title)</small>
     <div class="title-row"><h1>@(p.Title)</h1><button type="button" class="heart lg" data-wish="@(p.Id)" aria-label="افزودن به علاقه‌مندی‌ها" aria-pressed="false"><svg class="i"><use href="#i-heart" /></svg></button></div>
 
-    <div class="price-lg">
+    <div class="price-lg" data-base="@decimal.Round(p.Price, 0).ToString("0", System.Globalization.CultureInfo.InvariantCulture)">
         @if (p.OldPrice.HasValue) { <del>@Fa.Money(p.OldPrice.Value)</del> }
         <b>@Fa.Money(p.Price)</b> <span>تومان</span> <small class="muted">@(p.Unit)</small>
     </div>
@@ -74,15 +74,16 @@
 
     @if (p.Stock > 0)
     {
-        var bodyList = p.BodyColorList; var lightList = p.LightColorList;
+        var bodyList = p.BodyOptions; var lightList = p.LightOptions;
         if (bodyList.Count > 0)
         {
             <fieldset class="opt" data-opt="body">
-                <legend>رنگ بدنه: <b data-opt-label>@(bodyList.Count == 1 ? bodyList[0] : "انتخاب کن")</b></legend>
+                <legend>رنگ بدنه: <b data-opt-label>@(bodyList.Count == 1 ? bodyList[0].Name : "انتخاب کن")</b></legend>
                 <div class="opt-list">
                     @foreach (var c in bodyList)
                     {
-                        <label class="swatch"><input type="radio" name="bodyColor" value="@c" @(bodyList.Count == 1 ? "checked" : "") /><span class="chip-o"><span class="dot" style="--c:@Ghaforv3.Models.ProductOptions.Swatch(c, false)"></span><span class="nm">@c</span></span></label>
+                        var dl = c.DeltaFrom(p.Price);
+                        <label class="swatch"><input type="radio" name="bodyColor" value="@c.Name" data-delta="@decimal.Round(dl, 0).ToString("0", System.Globalization.CultureInfo.InvariantCulture)" @(bodyList.Count == 1 ? "checked" : "") /><span class="chip-o"><span class="dot" style="--c:@Ghaforv3.Models.ProductOptions.Swatch(c.Name, false)"></span><span class="nm">@c.Name</span>@if (dl != 0) { <span class="od">@(dl > 0 ? "+" : "−")@Fa.Money(Math.Abs(dl))</span> }</span></label>
                     }
                 </div>
             </fieldset>
@@ -90,11 +91,12 @@
         if (lightList.Count > 0)
         {
             <fieldset class="opt" data-opt="light">
-                <legend>رنگ نور: <b data-opt-label>@(lightList.Count == 1 ? lightList[0] : "انتخاب کن")</b></legend>
+                <legend>رنگ نور: <b data-opt-label>@(lightList.Count == 1 ? lightList[0].Name : "انتخاب کن")</b></legend>
                 <div class="opt-list">
                     @foreach (var c in lightList)
                     {
-                        <label class="swatch"><input type="radio" name="lightColor" value="@c" @(lightList.Count == 1 ? "checked" : "") /><span class="chip-o"><span class="dot light" style="--c:@Ghaforv3.Models.ProductOptions.Swatch(c, true)"></span><span class="nm">@c</span></span></label>
+                        var dl = c.DeltaFrom(p.Price);
+                        <label class="swatch"><input type="radio" name="lightColor" value="@c.Name" data-delta="@decimal.Round(dl, 0).ToString("0", System.Globalization.CultureInfo.InvariantCulture)" @(lightList.Count == 1 ? "checked" : "") /><span class="chip-o"><span class="dot light" style="--c:@Ghaforv3.Models.ProductOptions.Swatch(c.Name, true)"></span><span class="nm">@c.Name</span>@if (dl != 0) { <span class="od">@(dl > 0 ? "+" : "−")@Fa.Money(Math.Abs(dl))</span> }</span></label>
                     }
                 </div>
             </fieldset>

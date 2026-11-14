@@ -416,3 +416,10 @@ a.ord:hover{transform:translateY(-2px);box-shadow:0 10px 24px #0000001a}
 .opt-btn{background:var(--brand);color:var(--dark);border-radius:var(--r-sm);padding:9px 12px;font-size:.78rem;font-weight:700;white-space:nowrap;transition:transform .25s var(--ease),box-shadow .25s}
 .opt-btn:hover{transform:translateY(-2px);box-shadow:0 8px 18px #f59e0b66}
 .inv-opt{font-size:.75rem;color:#6b7280}
+
+/* قیمت بر اساس رنگ */
+.od{font-size:.72rem;font-weight:700;color:#92400e;background:#fef3c7;border-radius:var(--r-pill);padding:1px 9px;white-space:nowrap}
+.from{font-size:.72rem;color:var(--muted);margin-inline-end:4px}
+.price-lg.priced del{display:none}
+.price-lg b{transition:color .3s}
+.price-lg.priced b{color:#b45309}

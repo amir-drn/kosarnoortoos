@@ -79,3 +79,7 @@ body.admin .a-btn:focus-visible,body.admin a:focus-visible,body.admin button:foc
 .a-table th{background:#f8fafc;font-weight:700;white-space:nowrap}
 .a-table tr.err{background:#fef2f2}.a-table tr.upd{background:#f0f9ff}.a-table tr.new{background:#f0fdf4}
 .a-msg{font-size:.78rem;margin-top:3px}.a-msg.err{color:#b91c1c}.a-msg.warn{color:#92400e}
+/* حذف چندتایی عکس‌ها */
+.a-plain{display:block}
+.a-pick{display:flex;align-items:center;gap:6px;font-size:.78rem;cursor:pointer}
+.a-pick input{accent-color:var(--brand)}

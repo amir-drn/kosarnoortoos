@@ -16,4 +16,8 @@
 
     <button class="a-btn" type="submit">ذخیره</button>
     <a class="a-btn ghost" href="@Url.Action("Index", "AdminUsers")">انصراف</a>
+    if (Model.Id != 0)
+    {
+        <button class="a-btn danger" type="submit" formaction="@Url.Action("Delete", "AdminUsers")" formnovalidate data-confirm="این کاربر برای همیشه حذف شود؟">🗑 حذف کاربر</button>
+    }
 }

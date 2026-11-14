@@ -53,7 +53,8 @@ namespace Ghaforv3.Models
                     (lights.Count > 0 && (item.LightColor == null || !lights.Contains(item.LightColor))) ||
                     (bodies.Count == 0 && item.BodyColor != null) || (lights.Count == 0 && item.LightColor != null))
                 { cart.Items.Remove(item); continue; }
-                item.Title = p.Title; item.Slug = p.Slug; item.ImageUrl = p.ImageUrl; item.UnitPrice = p.Price;
+                item.Title = p.Title; item.Slug = p.Slug; item.ImageUrl = p.ImageUrl;
+                item.UnitPrice = ProductOptions.PriceFor(p.Price, p.BodyColors, p.LightColors, item.BodyColor, item.LightColor);
                 item.Quantity = Math.Max(1, Math.Min(item.Quantity, Math.Min(p.Stock, MaxPerLine)));
             }
         }
